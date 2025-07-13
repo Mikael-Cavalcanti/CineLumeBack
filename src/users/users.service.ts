@@ -13,7 +13,7 @@ export class UsersService {
       id: this.idCounter++,
       name: dto.name,
       email: dto.email,
-      password: dto.password,
+      passwordHash: dto.password,
       birthDate: new Date(dto.birthDate),
     });
     this.users.push(user);
