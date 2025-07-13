@@ -6,6 +6,7 @@ export class User implements IUser {
   email: string;
   passwordHash: string;
   birthDate: Date;
+  isActive: boolean;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
