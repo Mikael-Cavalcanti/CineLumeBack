@@ -7,6 +7,7 @@ export class User implements IUser {
   passwordHash: string;
   birthDate: Date;
   isActive: boolean;
+  verificationCode?: string;
 
   constructor(partial: Partial<User>) {
     Object.assign(this, partial);
