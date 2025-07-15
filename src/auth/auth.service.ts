@@ -35,11 +35,7 @@ export class AuthService {
       isActive: false,
     });
 
-    await this.mailService.sendVerificationEmail(
-      'mikaelcavalcanti@outlook.com',
-      code,
-      user.name,
-    );
+    await this.mailService.sendVerificationEmail(user.email, code, user.name);
 
     return { message: 'Usuário registrado com sucesso!', user };
   }
