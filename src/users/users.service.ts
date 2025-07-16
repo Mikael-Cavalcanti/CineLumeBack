@@ -13,8 +13,9 @@ export class UsersService {
       id: this.idCounter++,
       name: dto.name,
       email: dto.email,
-      password: dto.password,
+      passwordHash: dto.password,
       birthDate: new Date(dto.birthDate),
+      verificationCode: dto.verificationCode,
     });
     this.users.push(user);
     return user;
@@ -39,7 +40,15 @@ export class UsersService {
     return user;
   }
 
-  remove(id: number): void {
-    this.users = this.users.filter((u) => u.id !== id);
+  remove(id: number) {
+    this.users = this.users.filter((user) => user.id !== id);
+    return {
+      message: `Usuário ${this.findOne(id).name} foi removido com sucesso!`,
+    };
+  }
+
+  removeAll() {
+    this.users = [];
+    return { message: 'Usuários removidos com sucesso!' };
   }
 }
