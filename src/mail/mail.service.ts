@@ -1,15 +1,20 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { VerifyEmailDto } from '../auth/dto/verify-email.dto';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../user/users.service';
 import * as process from 'node:process';
 import { User } from '@prisma/client';
+import { ActivationCode } from '@prisma/client';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
   constructor(private readonly usersService: UsersService) {}
+
+  private generateVerificationCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
 
   private transporter = nodemailer.createTransport({
     service: 'gmail',
