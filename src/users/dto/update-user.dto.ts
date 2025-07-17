@@ -6,7 +6,6 @@ import {
   IsDateString,
   IsEmail,
   IsNotEmpty,
-  IsString,
   MinLength,
 } from 'class-validator';
 
@@ -26,10 +25,6 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({ example: '2001-01-01' })
   @IsDateString()
   birthDate: Date;
-
-  @ApiProperty({ example: '123456' })
-  @IsString()
-  verificationCode?: string;
 
   @ApiProperty()
   @IsBoolean()

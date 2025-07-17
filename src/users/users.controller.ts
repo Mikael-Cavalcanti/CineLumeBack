@@ -12,41 +12,29 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@ApiTags('Users')
-@Controller('users')
+@ApiTags('User')
+@Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.usersService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    return await this.usersService.findOne(+id);
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch(':id')
-  update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
-    return this.usersService.update(+id, dto);
+  async update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
+    return await this.usersService.update(+id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.usersService.remove(+id);
-  }
-
-  @Delete()
-  removeAll() {
-    return this.usersService.removeAll();
+  async remove(@Param('id') id: number) {
+    return await this.usersService.remove(+id);
   }
 }

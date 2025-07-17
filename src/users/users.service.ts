@@ -1,54 +1,76 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
-  private idCounter = 1;
+  constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateUserDto): User {
-    const user = new User({
-      id: this.idCounter++,
-      name: dto.name,
-      email: dto.email,
-      passwordHash: dto.password,
-      birthDate: new Date(dto.birthDate),
-      verificationCode: dto.verificationCode,
-    });
-    this.users.push(user);
-    return user;
+  async create(dto: CreateUserDto): Promise<User | null> {
+    try {
+      return await this.prisma.user.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: dto.password,
+          birthDate: new Date(dto.birthDate),
+        },
+      });
+    } catch (err) {
+      console.error('Error creating user:', err);
+      return null;
+    }
   }
 
-  findAll(): User[] {
-    return this.users;
+  async findOne(id: number): Promise<User | null> {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { id },
+      });
+    } catch (e) {
+      console.error('Error finding user:', e);
+      return null;
+    }
   }
 
-  findOne(id: number): User {
-    return <User>this.users.find((user: User) => user.id === id);
+  async findByEmail(email: string): Promise<User | null> {
+    try {
+      return await this.prisma.user.findUnique({
+        where: { email },
+      });
+    } catch (err) {
+      console.error('Error finding user by email:', err);
+      return null;
+    }
   }
 
-  findByEmail(email: string): User {
-    return <User>this.users.find((user: User) => user.email === email);
+  async update(id: number, dto: UpdateUserDto): Promise<User | null> {
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: dto.password,
+          birthDate: new Date(dto.birthDate),
+        },
+      });
+    } catch (e) {
+      console.error('Error updating user:', e);
+      return null;
+    }
   }
 
-  update(id: number, dto: UpdateUserDto): User | null {
-    const user = this.findOne(id);
-    if (!user) return null;
-    Object.assign(user, dto);
-    return user;
-  }
-
-  remove(id: number) {
-    this.users = this.users.filter((user) => user.id !== id);
-    return {
-      message: `Usuário ${this.findOne(id).name} foi removido com sucesso!`,
-    };
-  }
-
-  removeAll() {
-    this.users = [];
-    return { message: 'Usuários removidos com sucesso!' };
+  async remove(id: number): Promise<User | null> {
+    try {
+      return await this.prisma.user.delete({
+        where: { id },
+      });
+    } catch (err) {
+      console.error('Error removing user:', err);
+      return null;
+    }
   }
 }

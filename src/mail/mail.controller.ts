@@ -9,8 +9,8 @@ export class MailController {
   constructor(private readonly mailService: MailService) {}
 
   @Post('verify-email')
-  verifyEmail(@Body() dto: VerifyEmailDto) {
-    this.mailService.verifyEmail(dto);
+  async verifyEmail(@Body() dto: VerifyEmailDto) {
+    await this.mailService.verifyEmail(dto);
     return { message: 'E-mail confirmado com sucesso.' };
   }
 }

@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { VerifyEmailDto } from '../auth/dto/verify-email.dto';
-import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import * as process from 'node:process';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class MailService {
@@ -40,15 +40,19 @@ export class MailService {
     }
   }
 
-  verifyEmail(dto: VerifyEmailDto) {
-    const user: User = this.usersService.findByEmail(dto.email);
+  async verifyEmail(dto: VerifyEmailDto) {
+    try {
+      const user: User | null = await this.usersService.findByEmail(dto.email);
 
-    if (!user) throw new BadRequestException('Usuário não encontrado');
-    if (user.isActive) throw new BadRequestException('Usuário já verificado');
-    if (user.verificationCode !== dto.code)
-      throw new BadRequestException('Código inválido');
+      if (!user) throw new BadRequestException('Usuário não encontrado');
+      if (user.isActive) throw new BadRequestException('Usuário já verificado');
+      // if (user.verificationCode !== dto.code)
+      //   throw new BadRequestException('Código inválido');
 
-    user.isActive = true;
-    user.verificationCode = undefined;
+      user.isActive = true;
+    } catch (e) {
+      this.logger.error('Erro ao verificar e-mail', e);
+      throw new BadRequestException('Não foi possível verificar o e-mail.');
+    }
   }
 }
