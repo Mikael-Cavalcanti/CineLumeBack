@@ -1,11 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../user/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { User } from '@prisma/client';
+import { ResetToken, User } from '@prisma/client';
 import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -13,13 +14,10 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  private generateVerificationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-  }
-
-  async register(dto: RegisterDto): Promise<{ access_token: string }> {
+  async register(dto: RegisterDto): Promise<{ accessToken: string }> {
     try {
       const existingUser: User | null = await this.usersService.findByEmail(
         dto.email,
@@ -41,17 +39,21 @@ export class AuthService {
       // const code = this.generateVerificationCode();
       // await this.mailService.sendVerificationEmail(user.email, code, user.name);
 
-      const payload = { id: user.id };
-      const token = await this.jwtService.signAsync(payload);
+      const userToken: ResetToken = await this.generateToken(user.id);
 
-      return { access_token: token };
+      await this.prisma.resetToken.update({
+        where: { id: userToken.id },
+        data: { used: true },
+      });
+
+      return { accessToken: userToken.token };
     } catch (error) {
       console.error('Error during registration:', error);
       throw new UnauthorizedException('Erro ao registrar usuário');
     }
   }
 
-  async login(dto: LoginDto): Promise<{ access_token: string }> {
+  async login(dto: LoginDto): Promise<{ accessToken: string }> {
     try {
       const user: User | null = await this.usersService.findByEmail(dto.email);
       if (!user) throw new UnauthorizedException('Email não encontrado');
@@ -70,13 +72,49 @@ export class AuthService {
       //   );
       // }
 
-      const payload = { id: user.id };
-      const token = await this.jwtService.signAsync(payload);
+      let token: ResetToken | null = await this.prisma.resetToken.findFirst({
+        where: {
+          userId: user.id,
+          expiresAt: {
+            gt: new Date(Date.now()),
+          },
+        },
+        orderBy: {
+          expiresAt: 'desc',
+        },
+      });
 
-      return { access_token: token };
+      if (!token) {
+        token = await this.generateToken(user.id);
+      }
+
+      if (!token.used) {
+        token = await this.prisma.resetToken.update({
+          where: {
+            id: token.id,
+          },
+          data: {
+            used: true,
+          },
+        });
+      }
+
+      return { accessToken: token.token };
     } catch (err) {
       console.error('Error during login:', err);
       throw new UnauthorizedException('Erro ao fazer login');
     }
+  }
+
+  private async generateToken(userId: number): Promise<ResetToken> {
+    const payload = { id: userId };
+    const jwtToken = this.jwtService.sign(payload);
+    return this.prisma.resetToken.create({
+      data: {
+        userId: userId,
+        token: jwtToken,
+        expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      },
+    });
   }
 }
