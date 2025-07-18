@@ -6,7 +6,6 @@ import {
   IsDateString,
   IsEmail,
   IsNotEmpty,
-  MinLength,
 } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
@@ -18,9 +17,9 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'password@123' })
-  @MinLength(6)
-  password: string;
+  // @ApiProperty({ example: 'password@123' })
+  // @MinLength(6)
+  // password: string;
 
   @ApiProperty({ example: '2001-01-01' })
   @IsDateString()

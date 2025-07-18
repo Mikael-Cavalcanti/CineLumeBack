@@ -26,7 +26,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch(':id')
+  @Patch('Update/:id')
   async update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
     return await this.usersService.update(+id, dto);
   }

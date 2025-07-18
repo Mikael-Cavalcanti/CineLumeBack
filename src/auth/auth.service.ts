@@ -35,9 +35,7 @@ export class AuthService {
 
       if (!user) throw new UnauthorizedException('Erro ao criar usuário');
 
-      //TODO: fazer verificação de email
-      // const code = this.generateVerificationCode();
-      // await this.mailService.sendVerificationEmail(user.email, code, user.name);
+      await this.mailService.sendEmailCode(user);
 
       const userToken: ResetToken = await this.generateToken(user.id);
 
@@ -62,15 +60,9 @@ export class AuthService {
 
       if (!isValidPassword) throw new UnauthorizedException('Senha inválida');
 
-      //TODO: fazer verificação de email
-      // if (!user.isActive) {
-      //   const code = this.generateVerificationCode();
-      //   await this.mailService.sendVerificationEmail(
-      //     user.email,
-      //     code,
-      //     user.name,
-      //   );
-      // }
+      if (!user.isActive) {
+        await this.mailService.sendEmailCode(user);
+      }
 
       let token: ResetToken | null = await this.prisma.resetToken.findFirst({
         where: {
@@ -107,13 +99,17 @@ export class AuthService {
   }
 
   private async generateToken(userId: number): Promise<ResetToken> {
+    const expiresAt = 15 * 24 * 60 * 60 * 1000; // 15 days
     const payload = { id: userId };
-    const jwtToken = this.jwtService.sign(payload);
+    const jwtToken = this.jwtService.sign(payload, {
+      expiresIn: expiresAt,
+    });
+
     return this.prisma.resetToken.create({
       data: {
         userId: userId,
         token: jwtToken,
-        expiresAt: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+        expiresAt: new Date(Date.now() + expiresAt),
       },
     });
   }
