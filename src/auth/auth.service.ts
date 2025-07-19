@@ -1,11 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../user/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { User } from '../users/entities/user.entity';
+import { ResetToken, User } from '@prisma/client';
 import { MailService } from '../mail/mail.service';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -13,58 +14,103 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly prisma: PrismaService,
   ) {}
 
-  private generateVerificationCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  async register(dto: RegisterDto): Promise<{ accessToken: string }> {
+    try {
+      const existingUser: User | null = await this.usersService.findByEmail(
+        dto.email,
+      );
+      if (existingUser) throw new UnauthorizedException('Usuário já existe!');
+
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+      const user: User | null = await this.usersService.create({
+        name: dto.name,
+        email: dto.email,
+        password: hashedPassword,
+        birthDate: new Date(dto.birthDate),
+      });
+
+      if (!user) throw new UnauthorizedException('Erro ao criar usuário');
+
+      await this.mailService.sendEmailCode(user);
+
+      const userToken: ResetToken = await this.generateToken(user.id);
+
+      await this.prisma.resetToken.update({
+        where: { id: userToken.id },
+        data: { used: true },
+      });
+
+      return { accessToken: userToken.token };
+    } catch (error) {
+      console.error('Error during registration:', error);
+      throw new UnauthorizedException('Erro ao registrar usuário');
+    }
   }
 
-  async register(dto: RegisterDto) {
-    const existingUser = this.usersService.findByEmail(dto.email);
-    if (existingUser) throw new UnauthorizedException('Usuário já existe!');
+  async login(dto: LoginDto): Promise<{ accessToken: string }> {
+    try {
+      const user: User | null = await this.usersService.findByEmail(dto.email);
+      if (!user) throw new UnauthorizedException('Email não encontrado');
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const code = this.generateVerificationCode();
+      const isValidPassword = await bcrypt.compare(dto.password, user.password);
 
-    const user: User = this.usersService.create({
-      name: dto.name,
-      email: dto.email,
-      password: hashedPassword,
-      birthDate: new Date(dto.birthDate),
-      verificationCode: code,
-      isActive: false,
+      if (!isValidPassword) throw new UnauthorizedException('Senha inválida');
+
+      if (!user.isActive) {
+        await this.mailService.sendEmailCode(user);
+      }
+
+      let token: ResetToken | null = await this.prisma.resetToken.findFirst({
+        where: {
+          userId: user.id,
+          expiresAt: {
+            gt: new Date(Date.now()),
+          },
+        },
+        orderBy: {
+          expiresAt: 'desc',
+        },
+      });
+
+      if (!token) {
+        token = await this.generateToken(user.id);
+      }
+
+      if (!token.used) {
+        token = await this.prisma.resetToken.update({
+          where: {
+            id: token.id,
+          },
+          data: {
+            used: true,
+          },
+        });
+      }
+
+      return { accessToken: token.token };
+    } catch (err) {
+      console.error('Error during login:', err);
+      throw new UnauthorizedException('Erro ao fazer login');
+    }
+  }
+
+  private async generateToken(userId: number): Promise<ResetToken> {
+    const expiresAt = 15 * 24 * 60 * 60 * 1000; // 15 days
+    const payload = { id: userId };
+    const jwtToken = this.jwtService.sign(payload, {
+      expiresIn: expiresAt,
     });
 
-    await this.mailService.sendVerificationEmail(user.email, code, user.name);
-
-    return { message: 'Usuário registrado com sucesso!', user };
-  }
-
-  async login(dto: LoginDto) {
-    const user: User = this.usersService.findByEmail(dto.email);
-
-    if (!user.isActive) {
-      let code: string;
-      if (user.verificationCode == undefined) {
-        code = user.verificationCode = this.generateVerificationCode();
-      } else code = user.verificationCode;
-
-      await this.mailService.sendVerificationEmail(user.email, code, user.name);
-    }
-
-    if (!user) throw new UnauthorizedException('Invalid credentials');
-
-    const isValidPassword = await bcrypt.compare(
-      dto.password,
-      user.passwordHash,
-    );
-
-    if (!isValidPassword)
-      throw new UnauthorizedException('Invalid credentials');
-
-    const payload = { sub: user.id, email: user.email };
-    const token = await this.jwtService.signAsync(payload);
-
-    return { access_token: token };
+    return this.prisma.resetToken.create({
+      data: {
+        userId: userId,
+        token: jwtToken,
+        expiresAt: new Date(Date.now() + expiresAt),
+      },
+    });
   }
 }
