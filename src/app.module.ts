@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config'; // importe o ConfigModule
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -8,6 +8,11 @@ import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { GenreModule } from './genre/genre.module';
+import { HistoryModule } from './history/history.module';
+import { VideosModule } from './videos/videos.module';
+import { ProfileService } from './profile/profile.service';
+import { ProfileModule } from './profile/profile.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -17,8 +22,11 @@ import { GenreModule } from './genre/genre.module';
     MailModule,
     FavoriteModule,
     GenreModule,
+    HistoryModule,
+    VideosModule,
+    ProfileModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ProfileService],
 })
 export class AppModule {}
