@@ -5,6 +5,7 @@ import { UsersService } from '../user/users.service';
 import * as process from 'node:process';
 import { ActivationCode, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { template } from './template/template';
 
 @Injectable()
 export class MailService {
@@ -13,7 +14,7 @@ export class MailService {
   constructor(
     private readonly usersService: UsersService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   private async generateVerificationCode(
     userId: number,
@@ -72,14 +73,15 @@ export class MailService {
         from: `"CineLume" <${process.env.EMAIL_USER}>`,
         to: user.email,
         subject: 'Confirmação de cadastro',
-        html: `
-          <h2>Olá${user.name ? ', ' + user.name : ''}!</h2>
-          <p>Obrigado por assinar o CineLume.</p>
-          <p>Seu código de verificação é:</p>
-          <h1>${code.code}</h1>
-          <p>Insira este código no app para confirmar seu cadastro. E não precisa responder este email</p>
-          <p>Se não foi você, ignore este e-mail.</p>
-        `,
+        // html: `
+        //   <h2>Olá${user.name ? ', ' + user.name : ''}!</h2>
+        //   <p>Obrigado por assinar o CineLume.</p>
+        //   <p>Seu código de verificação é:</p>
+        //   <h1>${code.code}</h1>
+        //   <p>Insira este código no app para confirmar seu cadastro. E não precisa responder este email</p>
+        //   <p>Se não foi você, ignore este e-mail.</p>
+        // `,
+        html: `${template(code, user)}`
       });
     } catch (error) {
       this.logger.error('Erro ao enviar e-mail', error);
