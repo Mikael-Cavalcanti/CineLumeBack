@@ -22,7 +22,6 @@ model User {
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @default(now()) @updatedAt @map("updated_at")
   profiles         Profile[]
-  userWatchTime    UserVideoWatchtime[]
   resetTokens      ResetToken[]
   activationCodes  ActivationCode[]
 }
@@ -63,6 +62,7 @@ model Video {
   title        String
   description  String?
   releaseYear  Int?              @map("release_year")
+  duration     Int              @map("duration_seconds")
   type         String
   thumbnailUrl String?           @map("thumbnail_url")
   videoUrl     String?           @map("video_url")
@@ -70,7 +70,6 @@ model Video {
   createdAt    DateTime          @default(now()) @map("created_at")
   genres       VideoGenre[]
   watchTime    ProfileVideoWatchtime[]
-  userWatch    UserVideoWatchtime[]
   myList       MyList[]
   favorites    Favorite[]
   sessions     PlaybackSession[]
@@ -111,18 +110,6 @@ model ProfileVideoWatchtime {
   updatedAt  DateTime  @default(now()) @map("last_updated")
 
   @@unique([profileId, videoId])
-}
-
-model UserVideoWatchtime {
-  id         Int       @id @default(autoincrement())
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-  video      Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId    Int
-  totalWatch Int       @default(0) @map("total_watch_time_seconds")
-  updatedAt  DateTime  @default(now()) @map("last_updated")
-
-  @@unique([userId, videoId])
 }
 
 model MyList {
