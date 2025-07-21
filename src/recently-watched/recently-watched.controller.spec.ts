@@ -11,7 +11,9 @@ describe('RecentlyWatchedController', () => {
       providers: [RecentlyWatchedService],
     }).compile();
 
-    controller = module.get<RecentlyWatchedController>(RecentlyWatchedController);
+    controller = module.get<RecentlyWatchedController>(
+      RecentlyWatchedController,
+    );
   });
 
   it('should be defined', () => {

@@ -5,7 +5,7 @@ import { Genre } from '@prisma/client';
 
 @Injectable()
 export class GenreService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createGenre(dto: CreateGenreDto): Promise<Genre> {
     try {

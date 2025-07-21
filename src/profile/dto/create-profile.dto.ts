@@ -1,16 +1,20 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsString, IsBoolean } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsBoolean, IsNumber } from 'class-validator';
 
 export class CreateProfileDto {
-    @ApiProperty({ example: 'Alice' })
-    @IsString()
-    name: string
+  @ApiProperty({ example: 'Alice' })
+  @IsString()
+  name: string;
 
-    @ApiProperty({ example: 'Avatar url' })
-    @IsString()
-    avatar_url: string
+  @ApiProperty({ example: '1' })
+  @IsNumber()
+  userId: number;
 
-    @ApiProperty()
-    @IsBoolean()
-    is_kid_profile: boolean;
+  @ApiProperty({ example: 'example.com.br/avatar.png' })
+  @IsString()
+  avatarUrl?: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  isKidProfile: boolean;
 }

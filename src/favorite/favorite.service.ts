@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { DeleteFavoriteDto } from './dto/delete-favorite.dto';
@@ -6,7 +10,7 @@ import { Favorite } from '@prisma/client';
 
 @Injectable()
 export class FavoriteService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async addFavorite(dto: CreateFavoriteDto): Promise<Favorite> {
     try {

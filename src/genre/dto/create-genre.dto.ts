@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsString } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 export class CreateGenreDto {
-    @ApiProperty({ example: 'Action' })
-    @IsString()
-    name: string
+  @ApiProperty({ example: 'Action' })
+  @IsString()
+  name: string;
 }

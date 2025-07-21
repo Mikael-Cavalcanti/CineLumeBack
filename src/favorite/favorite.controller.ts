@@ -17,7 +17,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @ApiTags('Favorites')
 @Controller('favorites')
 export class FavoriteController {
-  constructor(private readonly favoriteService: FavoriteService) { }
+  constructor(private readonly favoriteService: FavoriteService) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

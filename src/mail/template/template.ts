@@ -143,4 +143,4 @@ export const template = (code, user) => `
         </tr>
     </table>
 </body>
-</html>`
+</html>`;

@@ -6,60 +6,63 @@ import { Profile } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
-  constructor(private readonly prisma: PrismaService) { }
- 
+  constructor(private readonly prisma: PrismaService) {}
+
   async createProfile(dto: CreateProfileDto): Promise<Profile> {
     try {
       return await this.prisma.profile.create({
         data: {
-          userId: 1,
+          userId: dto.userId,
           name: dto.name,
-          avatarUrl: dto.avatar_url,
-          isKidsProfile: dto.is_kid_profile,
+          avatarUrl: dto.avatarUrl,
+          isKidsProfile: dto.isKidProfile,
         },
       });
     } catch (error) {
       if (error.code === 'P2002') {
+        console.error(`Profile name already exists:`, error);
         throw new Error('Profile name already exists');
       }
       throw new Error('Error creating profile');
     }
   }
 
-  async getAllProfiles(): Promise<any> {
+  async getAllProfiles(): Promise<Profile[]> {
     try {
-      return await this.prisma.profile.findMany({
-      });
+      return await this.prisma.profile.findMany({});
     } catch (error) {
+      console.error('Error fetching profiles:', error);
       throw new Error('Error fetching profiles');
     }
   }
 
-  async updateProfile(id: number, dto: UpdateProfileDto): Promise<Profile | null> {
-      try {
-        return await this.prisma.profile.update({
-          where: { id },
-          data: {
-            name: dto.name,
-            avatarUrl: dto.avatar_url,
-            isKidsProfile: dto.is_kid_profile,
-          },
-        });
-      } catch (e) {
-        console.error('Error updating profile:', e);
-        return null;
-      }
+  async updateProfile(
+    id: number,
+    dto: UpdateProfileDto,
+  ): Promise<Profile | null> {
+    try {
+      return await this.prisma.profile.update({
+        where: { id },
+        data: {
+          name: dto.name,
+          avatarUrl: dto.avatarUrl,
+          isKidsProfile: dto.isKidProfile,
+        },
+      });
+    } catch (e) {
+      console.error('Error updating profile:', e);
+      return null;
     }
+  }
 
   async removeProfile(id: number): Promise<Profile | null> {
-      try {
-        return await this.prisma.profile.delete({
-          where: { id },
-        });
-      } catch (err) {
-        console.error('Error removing profile:', err);
-        return null;
-      }
+    try {
+      return await this.prisma.profile.delete({
+        where: { id },
+      });
+    } catch (err) {
+      console.error('Error removing profile:', err);
+      return null;
     }
-
+  }
 }

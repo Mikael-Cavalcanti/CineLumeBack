@@ -1,14 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsString, IsBoolean } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsBoolean } from 'class-validator';
 
 export class AssignProfileDto {
   @ApiProperty({ example: 'Alice' })
   @IsString()
-  name: string
+  name: string;
 
   @ApiProperty({ example: 'Avatar url' })
   @IsString()
-  avatar_url: string
+  avatar_url: string;
 
   @ApiProperty()
   @IsBoolean()

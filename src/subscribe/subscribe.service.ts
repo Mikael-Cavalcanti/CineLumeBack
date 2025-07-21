@@ -5,8 +5,8 @@ import { ChannelSubscription } from '@prisma/client';
 
 @Injectable()
 export class SubscribeService {
-  constructor(private readonly prisma: PrismaService) { }
- 
+  constructor(private readonly prisma: PrismaService) {}
+
   async createSubscribe(dto: CreateSubscribeDto): Promise<ChannelSubscription> {
     try {
       return await this.prisma.channelSubscription.create({
@@ -23,25 +23,34 @@ export class SubscribeService {
     }
   }
 
-  async getAllSubcribes(profileId: number): Promise<any> {
+  async getAllSubscribes(profileId: number) {
     try {
-      return await this.prisma.channelSubscription.findMany({
-          where: { profileId },
-        });
+      const channelSub = await this.prisma.channelSubscription.findMany({
+        where: { profileId },
+      });
+      return channelSub;
     } catch (error) {
       throw new Error('Error fetching subscritions');
     }
   }
 
-  async removeSubscribe(channelId: number): Promise<ChannelSubscription | null> {
-      try {
-        return await this.prisma.channelSubscription.delete({
-          where: { channelId },
-        });
-      } catch (err) {
-        console.error('Error removing subscrition:', err);
-        return null;
-      }
+  async removeSubscribe(
+    profileId: number,
+    channelId: number,
+  ): Promise<ChannelSubscription | null> {
+    try {
+      const subscription = await this.prisma.channelSubscription.delete({
+        where: {
+          profileId_channelId: {
+            profileId,
+            channelId,
+          },
+        },
+      });
+      return subscription;
+    } catch (err) {
+      console.error('Error removing subscription:', err);
+      return null;
     }
-
+  }
 }

@@ -24,7 +24,9 @@ export class RecentlyWatchedController {
   }
 
   @Get(':profileId')
-  @ApiOperation({ summary: 'Buscar os últimos 10 vídeos assistidos pelo perfil' })
+  @ApiOperation({
+    summary: 'Buscar os últimos 10 vídeos assistidos pelo perfil',
+  })
   @ApiParam({ name: 'profileId', type: 'number' })
   async getList(@Param('profileId') profileId: string) {
     return await this.service.getRecentlyWatched(+profileId);

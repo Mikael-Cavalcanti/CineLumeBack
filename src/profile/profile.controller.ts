@@ -1,5 +1,15 @@
-import { Controller, Get, Param, Post, Body, Patch, Delete, UseGuards, HttpException,
-  HttpStatus, } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Patch,
+  Delete,
+  UseGuards,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { AssignProfileDto } from './dto/assign-profile.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -10,7 +20,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 @ApiTags('Profiles')
 @Controller('profiles')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) { }
+  constructor(private readonly profileService: ProfileService) {}
 
   //@UseGuards(JwtAuthGuard)
   //@ApiBearerAuth()
@@ -23,7 +33,7 @@ export class ProfileController {
       return { success: false, message: error.message };
     }
   }
-  
+
   //@UseGuards(JwtAuthGuard)
   //@ApiBearerAuth()
   @Post()
