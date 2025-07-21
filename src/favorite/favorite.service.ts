@@ -2,12 +2,13 @@ import { Injectable, NotFoundException, InternalServerErrorException } from '@ne
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { DeleteFavoriteDto } from './dto/delete-favorite.dto';
+import { Favorite } from '@prisma/client';
 
 @Injectable()
 export class FavoriteService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async addFavorite(dto: CreateFavoriteDto): Promise<any> {
+  async addFavorite(dto: CreateFavoriteDto): Promise<Favorite> {
     try {
       return await this.prisma.favorite.create({
         data: {
@@ -16,7 +17,7 @@ export class FavoriteService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Erro ao adicionar favorito');
+      throw new InternalServerErrorException('Error to add favorite');
     }
   }
 
@@ -32,7 +33,7 @@ export class FavoriteService {
       });
 
       if (!favorite) {
-        throw new NotFoundException('Favorito não encontrado');
+        throw new NotFoundException('Favorite not found');
       }
 
       return await this.prisma.favorite.delete({
@@ -44,11 +45,11 @@ export class FavoriteService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Erro ao remover favorito');
+      throw new InternalServerErrorException('Error to remove favorite');
     }
   }
 
-  async listFavoritesByProfile(profileId: number): Promise<any[]> {
+  async listFavoritesByProfile(profileId: number): Promise<Favorite[]> {
     try {
       return await this.prisma.favorite.findMany({
         where: { profileId },
@@ -57,7 +58,7 @@ export class FavoriteService {
         },
       });
     } catch (error) {
-      throw new InternalServerErrorException('Erro ao listar favoritos');
+      throw new InternalServerErrorException('Error to list the favorites');
     }
   }
 
@@ -73,7 +74,7 @@ export class FavoriteService {
       });
       return !!favorite;
     } catch (error) {
-      throw new InternalServerErrorException('Erro ao verificar favorito');
+      throw new InternalServerErrorException('Error to verify favorite');
     }
   }
 }
