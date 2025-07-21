@@ -6,6 +6,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -21,20 +23,32 @@ export class UsersController {
   @ApiBearerAuth()
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return await this.usersService.findOne(+id);
+    const user = await this.usersService.findOne(+id);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch('Update/:id')
   async update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
-    return await this.usersService.update(+id, dto);
+    const user = await this.usersService.update(+id, dto);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    return await this.usersService.remove(+id);
+    const user = await this.usersService.remove(+id);
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 }
