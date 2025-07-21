@@ -12,7 +12,7 @@ import { HistoryModule } from './history/history.module';
 import { VideosModule } from './videos/videos.module';
 import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
-
+import { RecentlyWatchedModule } from './recently-watched/recently-watched.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -25,6 +25,7 @@ import { ProfileModule } from './profile/profile.module';
     HistoryModule,
     VideosModule,
     ProfileModule,
+    RecentlyWatchedModule,
   ],
   controllers: [AppController],
   providers: [AppService, ProfileService],
