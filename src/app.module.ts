@@ -8,6 +8,7 @@ import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { GenreModule } from './genre/genre.module';
+import { RecentlyWatchedModule } from './recently-watched/recently-watched.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -17,6 +18,7 @@ import { GenreModule } from './genre/genre.module';
     MailModule,
     FavoriteModule,
     GenreModule,
+    RecentlyWatchedModule,
   ],
   controllers: [AppController],
   providers: [AppService],
