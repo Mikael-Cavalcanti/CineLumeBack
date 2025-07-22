@@ -14,7 +14,7 @@ export class MailService {
   constructor(
     private readonly usersService: UsersService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   private async generateVerificationCode(
     userId: number,
@@ -81,7 +81,7 @@ export class MailService {
         //   <p>Insira este código no app para confirmar seu cadastro. E não precisa responder este email</p>
         //   <p>Se não foi você, ignore este e-mail.</p>
         // `,
-        html: `${template(code, user)}`
+        html: `${template(code, user)}`,
       });
     } catch (error) {
       this.logger.error('Erro ao enviar e-mail', error);

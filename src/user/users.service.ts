@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateUserDto): Promise<User | null> {
+  async create(dto: CreateUserDto): Promise<User> {
     try {
       return await this.prisma.user.create({
         data: {
@@ -20,7 +20,7 @@ export class UsersService {
       });
     } catch (err) {
       console.error('Error creating user:', err);
-      return null;
+      throw new Error('Error creating user');
     }
   }
 

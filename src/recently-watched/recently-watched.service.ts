@@ -6,7 +6,7 @@ import { PlaybackSession } from '@prisma/client';
 
 @Injectable()
 export class RecentlyWatchedService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createPlayback(dto: CreatePlaybackDto): Promise<PlaybackSession> {
     try {
@@ -22,7 +22,10 @@ export class RecentlyWatchedService {
     }
   }
 
-  async finishPlayback(id: number, dto: FinishPlaybackDto): Promise<PlaybackSession> {
+  async finishPlayback(
+    id: number,
+    dto: FinishPlaybackDto,
+  ): Promise<PlaybackSession> {
     try {
       return await this.prisma.playbackSession.update({
         where: { id },

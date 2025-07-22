@@ -7,6 +7,11 @@ import { LoginDto } from './dto/login.dto';
 import { ResetToken, User } from '@prisma/client';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProfileService } from '../profile/profile.service';
+
+interface JwtPayload {
+  id: number;
+}
 
 @Injectable()
 export class AuthService {
@@ -15,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     private readonly prisma: PrismaService,
+    private readonly profileService: ProfileService,
   ) {}
 
   async register(dto: RegisterDto): Promise<{ accessToken: string }> {
@@ -24,16 +30,21 @@ export class AuthService {
       );
       if (existingUser) throw new UnauthorizedException('Usuário já existe!');
 
-      const hashedPassword = await bcrypt.hash(dto.password, 10);
+      const hashedPassword: string = await bcrypt.hash(dto.password, 10);
 
-      const user: User | null = await this.usersService.create({
+      const user: User = await this.usersService.create({
         name: dto.name,
         email: dto.email,
         password: hashedPassword,
         birthDate: new Date(dto.birthDate),
       });
 
-      if (!user) throw new UnauthorizedException('Erro ao criar usuário');
+      //create profile
+      await this.profileService.createProfile({
+        name: dto.name,
+        userId: user.id,
+        isKidProfile: false,
+      });
 
       await this.mailService.sendEmailCode(user);
 
@@ -100,7 +111,7 @@ export class AuthService {
 
   private async generateToken(userId: number): Promise<ResetToken> {
     const expiresAt = 15 * 24 * 60 * 60 * 1000; // 15 days
-    const payload = { id: userId };
+    const payload = { id: userId } as JwtPayload;
     const jwtToken = this.jwtService.sign(payload, {
       expiresIn: expiresAt,
     });

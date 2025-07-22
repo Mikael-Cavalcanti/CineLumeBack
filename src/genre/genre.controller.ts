@@ -1,4 +1,12 @@
-import { Controller, Get, Param, Post, Body, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { GenreService } from './genre.service';
 import { AssignGenreDto } from './dto/assign-genre.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -8,7 +16,7 @@ import { CreateGenreDto } from './dto/create-genre.dto';
 @ApiTags('Genres')
 @Controller('genres')
 export class GenreController {
-  constructor(private readonly genreService: GenreService) { }
+  constructor(private readonly genreService: GenreService) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -33,7 +41,7 @@ export class GenreController {
       return { success: false, message: error.message };
     }
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post()
@@ -51,7 +59,10 @@ export class GenreController {
   @Post('assign')
   async assignGenre(@Body() body: AssignGenreDto) {
     try {
-      const result = await this.genreService.addGenreToVideo(body.videoId, body.genreId);
+      const result = await this.genreService.addGenreToVideo(
+        body.videoId,
+        body.genreId,
+      );
       return { success: true, data: result };
     } catch (error) {
       return { success: false, message: error.message };
@@ -63,7 +74,10 @@ export class GenreController {
   @Delete('remove')
   async removeGenre(@Body() body: AssignGenreDto) {
     try {
-      const result = await this.genreService.removeGenreFromVideo(body.videoId, body.genreId);
+      const result = await this.genreService.removeGenreFromVideo(
+        body.videoId,
+        body.genreId,
+      );
       return { success: true, data: result };
     } catch (error) {
       return { success: false, message: error.message };

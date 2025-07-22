@@ -7,4 +7,4 @@ import { PrismaService } from 'src/prisma/prisma.service';
   controllers: [RecentlyWatchedController],
   providers: [RecentlyWatchedService, PrismaService],
 })
-export class RecentlyWatchedModule { }
+export class RecentlyWatchedModule {}
