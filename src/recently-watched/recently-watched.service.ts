@@ -50,4 +50,19 @@ export class RecentlyWatchedService {
       throw new Error('Error to get watched videos: ' + error.message);
     }
   }
+
+  async deleteRecentlyWatched(profileId: number, videoId: number): Promise<{ message: string }> {
+    try {
+      await this.prisma.playbackSession.deleteMany({
+        where: {
+          profileId: profileId,
+          videoId: videoId,
+        },
+      });
+
+      return { message: 'Video removed' };
+    } catch (error) {
+      throw new Error('Error to remove recently watched video: ' + error.message);
+    }
+  }
 }

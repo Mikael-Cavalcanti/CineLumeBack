@@ -13,6 +13,7 @@ import { VideosModule } from './videos/videos.module';
 import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
 import { RecentlyWatchedModule } from './recently-watched/recently-watched.module';
+import { ChannelModule } from './channel/channel.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -26,6 +27,7 @@ import { RecentlyWatchedModule } from './recently-watched/recently-watched.modul
     VideosModule,
     ProfileModule,
     RecentlyWatchedModule,
+    ChannelModule,
   ],
   controllers: [AppController],
   providers: [AppService, ProfileService],
