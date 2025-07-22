@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FavoriteController } from './favorite.controller';
-import { FavoriteService } from './favorite.service';
-import { JwtAuthGuard } from '../../src/auth/jwt-auth.guard';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
-import { DeleteFavoriteDto } from './dto/delete-favorite.dto';
+import { FavoriteController } from '../favorite.controller';
+import { FavoriteService } from '../favorite.service';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { CreateFavoriteDto } from '../dto/create-favorite.dto';
+import { DeleteFavoriteDto } from '../dto/delete-favorite.dto';
 import { Favorite } from '@prisma/client';
 
 // Mock do serviço para não depender da implementação real nos testes do controller

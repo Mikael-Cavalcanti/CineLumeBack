@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RecentlyWatchedController } from './recently-watched.controller';
-import { RecentlyWatchedService } from './recently-watched.service';
-import { CreatePlaybackDto } from './dto/create-playback.dto';
-import { FinishPlaybackDto } from './dto/finish-playback.dto';
+import { RecentlyWatchedController } from '../recently-watched.controller';
+import { RecentlyWatchedService } from '../recently-watched.service';
+import { CreatePlaybackDto } from '../dto/create-playback.dto';
+import { FinishPlaybackDto } from '../dto/finish-playback.dto';
 import { NotFoundException } from '@nestjs/common';
 
 // Mock dos DTOs para uso nos testes
