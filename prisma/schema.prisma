@@ -13,71 +13,71 @@ datasource db {
 }
 
 model User {
-  id               Int               @id @default(autoincrement())
-  name             String
-  email            String            @unique
-  password         String            @map("password_hash")
-  birthDate        DateTime          @map("birth_date")
-  isActive         Boolean           @default(false) @map("is_active")
-  createdAt        DateTime          @default(now()) @map("created_at")
-  updatedAt        DateTime          @default(now()) @updatedAt @map("updated_at")
-  profiles         Profile[]
-  resetTokens      ResetToken[]
-  activationCodes  ActivationCode[]
+  id              Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  password        String           @map("password_hash")
+  birthDate       DateTime         @map("birth_date")
+  isActive        Boolean          @default(false) @map("is_active")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @default(now()) @updatedAt @map("updated_at")
+  profiles        Profile[]
+  resetTokens     ResetToken[]
+  activationCodes ActivationCode[]
 }
 
 model ActivationCode {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId     Int
-  code       String   @unique
-  createdAt  DateTime @default(now()) @map("created_at")
-  expiresAt  DateTime @map("expires_at")
-  used       Boolean  @default(false)
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  code      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
 }
 
 model Profile {
-  id             Int                    @id @default(autoincrement())
-  user           User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId         Int
-  name           String
-  avatarUrl      String?                @map("avatar_url")
-  isKidsProfile  Boolean                @default(false) @map("is_kids_profile")
-  createdAt      DateTime               @default(now()) @map("created_at")
-  favorites      Favorite[]
-  myList         MyList[]
-  subscriptions  ChannelSubscription[]
-  playback       PlaybackSession[]
-  watchTime      ProfileVideoWatchtime[]
+  id            Int                     @id @default(autoincrement())
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  name          String
+  avatarUrl     String?                 @map("avatar_url")
+  isKidsProfile Boolean                 @default(false) @map("is_kids_profile")
+  createdAt     DateTime                @default(now()) @map("created_at")
+  favorites     Favorite[]
+  myList        MyList[]
+  subscriptions ChannelSubscription[]
+  playback      PlaybackSession[]
+  watchTime     ProfileVideoWatchtime[]
 }
 
 model Genre {
-  id     Int     @id @default(autoincrement())
-  name   String  @unique
+  id     Int          @id @default(autoincrement())
+  name   String       @unique
   videos VideoGenre[]
 }
 
 model Video {
-  id           Int               @id @default(autoincrement())
-  title        String
-  description  String?
-  releaseYear  Int?              @map("release_year")
-  duration     Int              @map("duration_seconds")
-  type         String
-  thumbnailUrl String?           @map("thumbnail_url")
-  videoUrl     String?           @map("video_url")
-  ageRating    String?           @map("age_rating")
-  createdAt    DateTime          @default(now()) @map("created_at")
-  genres       VideoGenre[]
-  watchTime    ProfileVideoWatchtime[]
-  myList       MyList[]
-  favorites    Favorite[]
-  sessions     PlaybackSession[]
-  trending     Trending[]
-  backdrops    Backdrop[]
-  posters      Poster[]
-  extras       VideoExtra[]
-  casts        Cast[]
+  id            Int                     @id @default(autoincrement())
+  title         String
+  description   String?
+  releaseYear   Int?                    @map("release_year")
+  duration      Int                     @map("duration_seconds")
+  type          String
+  thumbnailUrl  String?                 @map("thumbnail_url")
+  videoUrl      String?                 @map("video_url")
+  ageRating     String?                 @map("age_rating")
+  createdAt     DateTime                @default(now()) @map("created_at")
+  genres        VideoGenre[]
+  watchTime     ProfileVideoWatchtime[]
+  myList        MyList[]
+  favorites     Favorite[]
+  sessions      PlaybackSession[]
+  trending      Trending[]
+  backdrops     Backdrop[]
+  posters       Poster[]
+  extras        VideoExtra[]
+  casts         Cast[]
   videoChannels VideoChannel[]
 }
 
@@ -101,13 +101,13 @@ model PlaybackSession {
 }
 
 model ProfileVideoWatchtime {
-  id         Int       @id @default(autoincrement())
-  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   profileId  Int
-  video      Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
   videoId    Int
-  totalWatch Int       @default(0) @map("total_watch_time_seconds")
-  updatedAt  DateTime  @default(now()) @map("last_updated")
+  totalWatch Int      @default(0) @map("total_watch_time_seconds")
+  updatedAt  DateTime @default(now()) @map("last_updated")
 
   @@unique([profileId, videoId])
 }
@@ -135,10 +135,10 @@ model Favorite {
 }
 
 model Channel {
-  id         Int              @id @default(autoincrement())
-  name       String           @unique
-  logoUrl    String?          @map("logo_url")
-  videos     VideoChannel[]
+  id          Int                   @id @default(autoincrement())
+  name        String                @unique
+  logoUrl     String?               @map("logo_url")
+  videos      VideoChannel[]
   subscribers ChannelSubscription[]
 }
 
@@ -152,11 +152,11 @@ model VideoChannel {
 }
 
 model ChannelSubscription {
-  id          Int      @id @default(autoincrement())
-  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  profileId   Int
-  channel     Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId   Int
+  id           Int      @id @default(autoincrement())
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId    Int
+  channel      Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId    Int
   subscribedAt DateTime @default(now()) @map("subscribed_at")
 
   @@unique([profileId, channelId])
@@ -172,8 +172,8 @@ model ResetToken {
 }
 
 model Trending {
-  id         Int     @id @default(autoincrement())
-  video      Video   @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  id         Int      @id @default(autoincrement())
+  video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
   videoId    Int
   rank       Int
   viewCount  Int      @map("view_count")
@@ -181,28 +181,28 @@ model Trending {
 }
 
 model Backdrop {
-  id        Int      @id @default(autoincrement())
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId   Int
-  imageUrl  String   @map("image_url")
-  addedAt   DateTime @default(now()) @map("added_at")
+  id       Int      @id @default(autoincrement())
+  video    Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId  Int
+  imageUrl String   @map("image_url")
+  addedAt  DateTime @default(now()) @map("added_at")
 }
 
 model Poster {
-  id        Int      @id @default(autoincrement())
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId   Int
-  imageUrl  String   @map("image_url")
-  addedAt   DateTime @default(now()) @map("added_at")
+  id       Int      @id @default(autoincrement())
+  video    Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId  Int
+  imageUrl String   @map("image_url")
+  addedAt  DateTime @default(now()) @map("added_at")
 }
 
 model VideoExtra {
-  id        Int      @id @default(autoincrement())
-  video     Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId   Int
-  videoUrl  String   @map("video_url")
-  type      String
-  addedAt   DateTime @default(now()) @map("added_at")
+  id       Int      @id @default(autoincrement())
+  video    Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId  Int
+  videoUrl String   @map("video_url")
+  type     String
+  addedAt  DateTime @default(now()) @map("added_at")
 }
 
 model Cast {

@@ -11,7 +11,6 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
-import { AssignProfileDto } from './dto/assign-profile.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -22,8 +21,8 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  //@UseGuards(JwtAuthGuard)
-  //@ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get()
   async getAllProfiles() {
     try {
@@ -34,8 +33,8 @@ export class ProfileController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
-  //@ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   async createProfile(@Body() body: CreateProfileDto) {
     try {
@@ -46,8 +45,8 @@ export class ProfileController {
     }
   }
 
-  //@UseGuards(JwtAuthGuard)
-  //@ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Patch('Update/:id')
   async update(@Param('id') id: number, @Body() dto: UpdateProfileDto) {
     const profile = await this.profileService.updateProfile(+id, dto);
@@ -57,8 +56,8 @@ export class ProfileController {
     return profile;
   }
 
-  //@UseGuards(JwtAuthGuard)
-  //@ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   async remove(@Param('id') id: number) {
     const profile = await this.profileService.removeProfile(+id);
