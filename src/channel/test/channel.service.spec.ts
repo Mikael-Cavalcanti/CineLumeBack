@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChannelService } from './channel.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { ChannelService } from '../channel.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 

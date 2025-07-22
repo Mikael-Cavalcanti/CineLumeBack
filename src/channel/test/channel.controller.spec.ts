@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChannelController } from './channel.controller';
-import { ChannelService } from './channel.service';
-import { CreateChannelDto } from './dto/create-channel.dto';
-import { UpdateChannelDto } from './dto/update-channel.dto';
+import { ChannelController } from '../channel.controller';
+import { ChannelService } from '../channel.service';
+import { CreateChannelDto } from '../dto/create-channel.dto';
+import { UpdateChannelDto } from '../dto/update-channel.dto';
 
 // Mock do ChannelService
 const mockChannelService = {

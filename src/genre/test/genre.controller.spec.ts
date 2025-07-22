@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenreController } from './genre.controller';
-import { GenreService } from './genre.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { GenreController } from '../genre.controller';
+import { GenreService } from '../genre.service';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 // Mock do GenreService
 const mockGenreService = {
