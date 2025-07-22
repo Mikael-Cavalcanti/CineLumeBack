@@ -13,6 +13,7 @@ import { VideosModule } from './videos/videos.module';
 import { ProfileService } from './profile/profile.service';
 import { ProfileModule } from './profile/profile.module';
 import { RecentlyWatchedModule } from './recently-watched/recently-watched.module';
+import { ChannelModule } from './channel/channel.module';
 import { SubscribeModule } from './subscribe/subscribe.module';
 
 @Module({
@@ -28,6 +29,7 @@ import { SubscribeModule } from './subscribe/subscribe.module';
     VideosModule,
     ProfileModule,
     RecentlyWatchedModule,
+    ChannelModule,
     SubscribeModule,
   ],
   controllers: [AppController],
