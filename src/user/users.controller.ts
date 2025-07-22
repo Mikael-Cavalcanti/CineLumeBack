@@ -13,6 +13,7 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { User } from '@prisma/client';
 
 @ApiTags('User')
 @Controller('user')
@@ -23,7 +24,7 @@ export class UsersController {
   @ApiBearerAuth()
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    const user = await this.usersService.findOne(+id);
+    const user: User | null = await this.usersService.findOne(+id);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -32,9 +33,9 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch('Update/:id')
+  @Patch('update/:id')
   async update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
-    const user = await this.usersService.update(+id, dto);
+    const user: User | null = await this.usersService.update(+id, dto);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -45,7 +46,7 @@ export class UsersController {
   @ApiBearerAuth()
   @Delete(':id')
   async remove(@Param('id') id: number) {
-    const user = await this.usersService.remove(+id);
+    const user: User | null = await this.usersService.remove(+id);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
