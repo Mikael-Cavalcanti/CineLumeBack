@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../src/prisma/prisma.service';
 import { CreatePlaybackDto } from './dto/create-playback.dto';
 import { FinishPlaybackDto } from './dto/finish-playback.dto';
 import { PlaybackSession } from '@prisma/client';
