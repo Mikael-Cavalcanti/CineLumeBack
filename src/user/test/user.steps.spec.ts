@@ -82,6 +82,7 @@ defineFeature(feature, (test) => {
     });
   });
 
+  // Cenário: Buscar um usuário por ID com sucesso
   test('Erro ao buscar um usuário com email inexistente', ({
     given,
     when,
