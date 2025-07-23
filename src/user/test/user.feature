@@ -20,3 +20,9 @@ Feature: Gerenciar usuários no sistema
     Given que existe um usuário cadastrado com id "1", nome "João Silva", email "joao@example.com", senha "123456" e data de nascimento "2000-01-01"
     When o usuário com id "1" é removido do sistema
     Then o usuário com id "1" deve retornar "null" ao ser buscado
+
+  Scenario: Buscar usuário existente por ID
+    Given que existe um usuário cadastrado com id "1"
+    When faço uma requisição GET para "/user/1"
+    Then a resposta deve ter status 200
+    And a resposta deve conter o usuário com id "1"

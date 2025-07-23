@@ -1,29 +1,71 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { PrismaService } from '../../prisma/prisma.service';
-import { UsersService } from '../../user/users.service';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { User } from '@prisma/client';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { UsersService } from '../users.service';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { Test } from '@nestjs/testing';
+import { UsersController } from '../users.controller';
+import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
 
 const feature = loadFeature('src/user/test/user.feature');
 
-let usersService: UsersService;
-let prisma: PrismaService;
-let resultant: User | null;
-
 defineFeature(feature, (test) => {
-  beforeEach(() => {
-    prisma = {
-      user: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-      },
-    } as unknown as PrismaService;
+  let usersService: UsersService;
+  let resultant: User | null;
+  let app: INestApplication;
+  let response: request.Response;
+
+  const prisma = {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    } as unknown as PrismaService,
+  } as unknown as PrismaService;
+
+  const mockJwtGuard = {
+    canActivate: () => true,
+  };
+
+  const mockUserService = {
+    findOne: jest.fn(),
+    update: jest.fn(),
+    remove: jest.fn(),
+    findByEmail: jest.fn(),
+    create: jest.fn(),
+  };
+
+  beforeAll(async () => {
+    const userModuleMock = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [
+        {
+          provide: UsersService,
+          useValue: mockUserService,
+        },
+      ],
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue(mockJwtGuard)
+      .compile();
 
     usersService = new UsersService(prisma);
+    app = userModuleMock.createNestApplication();
+    await app.init();
+
     jest.clearAllMocks();
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  afterAll(async () => {
+    await app.close();
   });
 
   //Cenário 1: Criar um usuário com sucesso
@@ -244,6 +286,31 @@ defineFeature(feature, (test) => {
 
         const result = await usersService.findOne(Number(id));
         expect(result).toBeNull();
+      },
+    );
+  });
+
+  // Cenário 5: Teste de Rota GET para buscar usuário por ID
+  test('Buscar usuário existente por ID', ({ given, when, then }) => {
+    given(
+      /^que existe um usuário cadastrado com id "([^"]*)"$/,
+      (id: number) => {
+        mockUserService.findOne.mockResolvedValue({ id: Number(id) });
+      },
+    );
+
+    when(/^faço uma requisição GET para "([^"]*)"$/, async (url) => {
+      response = await request(app.getHttpServer()).get(url);
+    });
+
+    then(/^a resposta deve ter status (\d+)$/, (status) => {
+      expect(response.status).toBe(Number(status));
+    });
+
+    then(
+      /^a resposta deve conter o usuário com id "([^"]*)"$/,
+      (id: number) => {
+        expect(response.body.id).toBe(Number(id));
       },
     );
   });
