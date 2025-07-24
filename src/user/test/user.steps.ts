@@ -182,14 +182,6 @@ defineFeature(feature, (test) => {
           password,
           birthDate: new Date(birthDate),
         });
-
-        (prisma.user.update as jest.Mock).mockResolvedValue({
-          id: Number(id),
-          name,
-          email,
-          password,
-          birthDate: new Date(birthDate),
-        });
       },
     );
 
