@@ -12,18 +12,3 @@ Feature: Gerenciar vídeos no sistema
   Scenario: Atualizar um vídeo existente com sucesso
     When o vídeo é atualizado com novo tipo "Aventura"
     Then o vídeo deve ser atualizado no sistema com tipo "Aventura"
-
-#  Scenario: Buscar vídeo por título com sucesso
-#    Given que existe um vídeo com título "Os Vingadores: Guerra Infinita"
-#    When faço uma busca por vídeo com título "Os Vingadores: Guerra Infinita"
-#    Then o vídeo correspondente deve ser retornado
-#
-#  Scenario: Buscar vídeo por ID com sucesso
-#    Given que existe um vídeo com id "1"
-#    When faço uma busca por vídeo com id "1"
-#    Then o vídeo correspondente deve ser retornado
-#
-#  Scenario: Remover um vídeo com sucesso
-#    Given que existe um vídeo com id "1"
-#    When o vídeo é removido
-#    Then o vídeo com id "1" não deve mais existir no sistema
