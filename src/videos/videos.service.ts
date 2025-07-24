@@ -38,6 +38,8 @@ export class VideosService {
           duration: dto.duration,
           type: dto.type,
           thumbnailUrl: dto.thumbnailUrl,
+          ageRating: dto.ageRating,
+          videoUrl: dto.url,
         },
       });
     } catch (err) {
