@@ -6,7 +6,7 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ChannelService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createChannelDto: CreateChannelDto) {
     try {
@@ -14,7 +14,10 @@ export class ChannelService {
         data: createChannelDto,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new NotFoundException('Um canal com este nome já existe.');
       }
       throw error;
@@ -46,7 +49,10 @@ export class ChannelService {
         data: updateChannelDto,
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
         throw new NotFoundException('Um canal com este nome já existe.');
       }
       throw error;

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { RecentlyWatchedService } from './recently-watched.service';
+import { RecentlyWatchedService } from '../recently-watched.service';
 
 describe('RecentlyWatchedService', () => {
   let service: RecentlyWatchedService;

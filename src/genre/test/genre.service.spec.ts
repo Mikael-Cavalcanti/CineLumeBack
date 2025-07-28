@@ -51,7 +51,9 @@ describe('GenreService', () => {
 
       const result = await service.createGenre(dto);
       expect(result).toEqual(expectedGenre);
-      expect(prisma.genre.findUnique).toHaveBeenCalledWith({ where: { name: 'Ação' } });
+      expect(prisma.genre.findUnique).toHaveBeenCalledWith({
+        where: { name: 'Ação' },
+      });
       expect(prisma.genre.create).toHaveBeenCalledWith({ data: dto });
     });
 
@@ -94,49 +96,57 @@ describe('GenreService', () => {
 
   describe('addGenreToVideo', () => {
     it('deve associar um gênero a um vídeo com sucesso', async () => {
-        const videoId = 101;
-        const genreId = 1;
-        const expectedRelation = { id: 1, videoId, genreId };
+      const videoId = 101;
+      const genreId = 1;
+      const expectedRelation = { id: 1, videoId, genreId };
 
-        prisma.videoGenre.create.mockResolvedValue(expectedRelation);
+      prisma.videoGenre.create.mockResolvedValue(expectedRelation);
 
-        const result = await service.addGenreToVideo(videoId, genreId);
-        expect(result).toEqual(expectedRelation);
+      const result = await service.addGenreToVideo(videoId, genreId);
+      expect(result).toEqual(expectedRelation);
     });
 
     it('deve lançar NotFoundException se o vídeo ou gênero não existir', async () => {
-        const videoId = 999;
-        const genreId = 1;
-        // Simula o erro de chave estrangeira do Prisma
-        const prismaError = new Prisma.PrismaClientKnownRequestError(
-            'Foreign key constraint failed',
-            { code: 'P2003', clientVersion: 'x.x.x' }
-        );
-        prisma.videoGenre.create.mockRejectedValue(prismaError);
+      const videoId = 999;
+      const genreId = 1;
+      // Simula o erro de chave estrangeira do Prisma
+      const prismaError = new Prisma.PrismaClientKnownRequestError(
+        'Foreign key constraint failed',
+        { code: 'P2003', clientVersion: 'x.x.x' },
+      );
+      prisma.videoGenre.create.mockRejectedValue(prismaError);
 
-        await expect(service.addGenreToVideo(videoId, genreId)).rejects.toThrow(
-            new NotFoundException(`Vídeo com id ${videoId} ou Gênero com id ${genreId} não encontrado.`)
-        );
+      await expect(service.addGenreToVideo(videoId, genreId)).rejects.toThrow(
+        new NotFoundException(
+          `Vídeo com id ${videoId} ou Gênero com id ${genreId} não encontrado.`,
+        ),
+      );
     });
   });
 
   describe('removeGenreFromVideo', () => {
     it('deve remover a associação com sucesso', async () => {
-        const videoId = 101;
-        const genreId = 1;
-        prisma.videoGenre.deleteMany.mockResolvedValue({ count: 1 });
+      const videoId = 101;
+      const genreId = 1;
+      prisma.videoGenre.deleteMany.mockResolvedValue({ count: 1 });
 
-        await expect(service.removeGenreFromVideo(videoId, genreId)).resolves.toBeUndefined();
+      await expect(
+        service.removeGenreFromVideo(videoId, genreId),
+      ).resolves.toBeUndefined();
     });
 
     it('deve lançar NotFoundException se a associação não existir', async () => {
-        const videoId = 101;
-        const genreId = 1;
-        prisma.videoGenre.deleteMany.mockResolvedValue({ count: 0 });
+      const videoId = 101;
+      const genreId = 1;
+      prisma.videoGenre.deleteMany.mockResolvedValue({ count: 0 });
 
-        await expect(service.removeGenreFromVideo(videoId, genreId)).rejects.toThrow(
-            new NotFoundException(`Associação entre vídeo ${videoId} e gênero ${genreId} não encontrada.`)
-        );
+      await expect(
+        service.removeGenreFromVideo(videoId, genreId),
+      ).rejects.toThrow(
+        new NotFoundException(
+          `Associação entre vídeo ${videoId} e gênero ${genreId} não encontrada.`,
+        ),
+      );
     });
   });
 });

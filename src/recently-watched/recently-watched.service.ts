@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreatePlaybackDto } from './dto/create-playback.dto';
 import { FinishPlaybackDto } from './dto/finish-playback.dto';
 import { PlaybackSession } from '@prisma/client';
@@ -54,7 +54,10 @@ export class RecentlyWatchedService {
     }
   }
 
-  async deleteRecentlyWatched(profileId: number, videoId: number): Promise<{ message: string }> {
+  async deleteRecentlyWatched(
+    profileId: number,
+    videoId: number,
+  ): Promise<{ message: string }> {
     try {
       await this.prisma.playbackSession.deleteMany({
         where: {
@@ -65,7 +68,9 @@ export class RecentlyWatchedService {
 
       return { message: 'Video removed' };
     } catch (error) {
-      throw new Error('Error to remove recently watched video: ' + error.message);
+      throw new Error(
+        'Error to remove recently watched video: ' + error.message,
+      );
     }
   }
 }

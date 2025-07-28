@@ -52,7 +52,10 @@ describe('ChannelService', () => {
 
   describe('create', () => {
     it('deve criar e retornar um canal', async () => {
-      const createDto = { name: 'Canal Teste', logoUrl: 'http://example.com/logo.png' };
+      const createDto = {
+        name: 'Canal Teste',
+        logoUrl: 'http://example.com/logo.png',
+      };
       prisma.channel.create.mockResolvedValue(mockChannel);
 
       const result = await service.create(createDto);
@@ -64,7 +67,10 @@ describe('ChannelService', () => {
     it('deve lançar uma exceção se o nome do canal já existir', async () => {
       const createDto = { name: 'Canal Existente' };
       prisma.channel.create.mockRejectedValue(
-        new Prisma.PrismaClientKnownRequestError('Erro', { code: 'P2002', clientVersion: '' }),
+        new Prisma.PrismaClientKnownRequestError('Erro', {
+          code: 'P2002',
+          clientVersion: '',
+        }),
       );
 
       await expect(service.create(createDto)).rejects.toThrow(
@@ -87,7 +93,9 @@ describe('ChannelService', () => {
       prisma.channel.findUnique.mockResolvedValue(mockChannel);
       const result = await service.findOne(1);
       expect(result).toEqual(mockChannel);
-      expect(prisma.channel.findUnique).toHaveBeenCalledWith({ where: { id: 1 } });
+      expect(prisma.channel.findUnique).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
     });
 
     it('deve lançar NotFoundException se o canal não for encontrado', async () => {
@@ -102,7 +110,7 @@ describe('ChannelService', () => {
     it('deve atualizar e retornar o canal', async () => {
       const updateDto = { name: 'Nome Atualizado' };
       const updatedChannel = { ...mockChannel, ...updateDto };
-      
+
       prisma.channel.findUnique.mockResolvedValue(mockChannel); // Simula que o canal existe
       prisma.channel.update.mockResolvedValue(updatedChannel);
 
@@ -118,7 +126,7 @@ describe('ChannelService', () => {
     it('deve lançar NotFoundException se o canal a ser atualizado não for encontrado', async () => {
       const updateDto = { name: 'Nome Atualizado' };
       prisma.channel.findUnique.mockResolvedValue(null);
-      
+
       await expect(service.update(99, updateDto)).rejects.toThrow(
         new NotFoundException('Canal com o ID 99 não encontrado.'),
       );
@@ -137,7 +145,7 @@ describe('ChannelService', () => {
 
     it('deve lançar NotFoundException se o canal a ser removido não for encontrado', async () => {
       prisma.channel.findUnique.mockResolvedValue(null);
-      
+
       await expect(service.remove(99)).rejects.toThrow(
         new NotFoundException('Canal com o ID 99 não encontrado.'),
       );

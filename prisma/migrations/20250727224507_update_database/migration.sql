@@ -7,6 +7,7 @@ CREATE TABLE "User" (
     "birth_date" TIMESTAMP(3) NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -49,6 +50,7 @@ CREATE TABLE "Video" (
     "title" TEXT NOT NULL,
     "description" TEXT,
     "release_year" INTEGER,
+    "duration_seconds" INTEGER NOT NULL,
     "type" TEXT NOT NULL,
     "thumbnail_url" TEXT,
     "video_url" TEXT,
@@ -86,17 +88,6 @@ CREATE TABLE "ProfileVideoWatchtime" (
     "last_updated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ProfileVideoWatchtime_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "UserVideoWatchtime" (
-    "id" SERIAL NOT NULL,
-    "userId" INTEGER NOT NULL,
-    "videoId" INTEGER NOT NULL,
-    "total_watch_time_seconds" INTEGER NOT NULL DEFAULT 0,
-    "last_updated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "UserVideoWatchtime_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -224,9 +215,6 @@ CREATE UNIQUE INDEX "Genre_name_key" ON "Genre"("name");
 CREATE UNIQUE INDEX "ProfileVideoWatchtime_profileId_videoId_key" ON "ProfileVideoWatchtime"("profileId", "videoId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "UserVideoWatchtime_userId_videoId_key" ON "UserVideoWatchtime"("userId", "videoId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "MyList_profileId_videoId_key" ON "MyList"("profileId", "videoId");
 
 -- CreateIndex
@@ -264,12 +252,6 @@ ALTER TABLE "ProfileVideoWatchtime" ADD CONSTRAINT "ProfileVideoWatchtime_profil
 
 -- AddForeignKey
 ALTER TABLE "ProfileVideoWatchtime" ADD CONSTRAINT "ProfileVideoWatchtime_videoId_fkey" FOREIGN KEY ("videoId") REFERENCES "Video"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UserVideoWatchtime" ADD CONSTRAINT "UserVideoWatchtime_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "UserVideoWatchtime" ADD CONSTRAINT "UserVideoWatchtime_videoId_fkey" FOREIGN KEY ("videoId") REFERENCES "Video"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MyList" ADD CONSTRAINT "MyList_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;

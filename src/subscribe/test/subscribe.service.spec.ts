@@ -46,20 +46,26 @@ describe('SubscribeService', () => {
         ...dto,
         subscribedAt: new Date(),
       };
-      mockPrismaService.channelSubscription.create.mockResolvedValue(expectedSubscription);
+      mockPrismaService.channelSubscription.create.mockResolvedValue(
+        expectedSubscription,
+      );
 
       // When
       const result = await service.createSubscribe(dto);
 
       // Then
-      expect(prisma.channelSubscription.create).toHaveBeenCalledWith({ data: dto });
+      expect(prisma.channelSubscription.create).toHaveBeenCalledWith({
+        data: dto,
+      });
       expect(result).toEqual(expectedSubscription);
     });
 
     it('When a inscrição já existe (erro P2002), then deve lançar um erro', async () => {
       // Given
       const dto: CreateSubscribeDto = { profileId: 1, channelId: 10 };
-      mockPrismaService.channelSubscription.create.mockRejectedValue({ code: 'P2002' });
+      mockPrismaService.channelSubscription.create.mockRejectedValue({
+        code: 'P2002',
+      });
 
       // When & Then
       await expect(service.createSubscribe(dto)).rejects.toThrow(
@@ -73,15 +79,19 @@ describe('SubscribeService', () => {
       // Given
       const profileId = 1;
       const expectedSubscriptions: ChannelSubscription[] = [
-        { id: 1, profileId: 1, channelId: 10, subscribedAt: new Date()},
+        { id: 1, profileId: 1, channelId: 10, subscribedAt: new Date() },
       ];
-      mockPrismaService.channelSubscription.findMany.mockResolvedValue(expectedSubscriptions);
+      mockPrismaService.channelSubscription.findMany.mockResolvedValue(
+        expectedSubscriptions,
+      );
 
       // When
       const result = await service.getAllSubscribes(profileId);
 
       // Then
-      expect(prisma.channelSubscription.findMany).toHaveBeenCalledWith({ where: { profileId } });
+      expect(prisma.channelSubscription.findMany).toHaveBeenCalledWith({
+        where: { profileId },
+      });
       expect(result).toEqual(expectedSubscriptions);
     });
   });
@@ -97,7 +107,9 @@ describe('SubscribeService', () => {
         channelId,
         subscribedAt: new Date(),
       };
-      mockPrismaService.channelSubscription.delete.mockResolvedValue(expectedSubscription);
+      mockPrismaService.channelSubscription.delete.mockResolvedValue(
+        expectedSubscription,
+      );
 
       // When
       const result = await service.removeSubscribe(profileId, channelId);

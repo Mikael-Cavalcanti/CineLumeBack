@@ -48,7 +48,10 @@ describe('ChannelController', () => {
 
   describe('create', () => {
     it('deve chamar o service.create com os dados corretos', async () => {
-      const createDto: CreateChannelDto = { name: 'Novo Canal', logoUrl: 'http://logo.url' };
+      const createDto: CreateChannelDto = {
+        name: 'Novo Canal',
+        logoUrl: 'http://logo.url',
+      };
       mockChannelService.create.mockResolvedValue(mockChannel);
 
       const result = await controller.create(createDto);

@@ -89,7 +89,10 @@ describe('ProfileController', () => {
     it('When update é chamado com dados válidos, then deve retornar o perfil atualizado', async () => {
       // Given
       const profileId = 1;
-      const updateDto: UpdateProfileDto = { name: 'Novo Nome' , isKidProfile: false};
+      const updateDto: UpdateProfileDto = {
+        name: 'Novo Nome',
+        isKidProfile: false,
+      };
       const updatedProfile = { id: profileId, ...updateDto };
       mockProfileService.updateProfile.mockResolvedValue(updatedProfile);
 
@@ -104,7 +107,10 @@ describe('ProfileController', () => {
     it('When update é chamado para um perfil inexistente, then deve lançar HttpException', async () => {
       // Given
       const profileId = 999;
-      const updateDto: UpdateProfileDto = { name: 'Novo Nome', isKidProfile: false };
+      const updateDto: UpdateProfileDto = {
+        name: 'Novo Nome',
+        isKidProfile: false,
+      };
       mockProfileService.updateProfile.mockResolvedValue(null);
 
       // When & Then
@@ -130,14 +136,14 @@ describe('ProfileController', () => {
     });
 
     it('When remove é chamado para um perfil inexistente, then deve lançar HttpException', async () => {
-        // Given
-        const profileId = 999;
-        mockProfileService.removeProfile.mockResolvedValue(null);
-  
-        // When & Then
-        await expect(controller.remove(profileId)).rejects.toThrow(
-          new HttpException('Profile not found', HttpStatus.NOT_FOUND),
-        );
-      });
+      // Given
+      const profileId = 999;
+      mockProfileService.removeProfile.mockResolvedValue(null);
+
+      // When & Then
+      await expect(controller.remove(profileId)).rejects.toThrow(
+        new HttpException('Profile not found', HttpStatus.NOT_FOUND),
+      );
+    });
   });
 });

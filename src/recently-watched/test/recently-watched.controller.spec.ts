@@ -37,7 +37,9 @@ describe('RecentlyWatchedController', () => {
       ],
     }).compile();
 
-    controller = module.get<RecentlyWatchedController>(RecentlyWatchedController);
+    controller = module.get<RecentlyWatchedController>(
+      RecentlyWatchedController,
+    );
     service = module.get<RecentlyWatchedService>(RecentlyWatchedService);
   });
 
@@ -53,13 +55,21 @@ describe('RecentlyWatchedController', () => {
   // Testes para o endpoint POST /
   describe('create', () => {
     it('should call service.createPlayback with the correct DTO and return the result', async () => {
-      const expectedResult = { id: 1, ...mockCreatePlaybackDto, startedAt: new Date(), endedAt: null, stoppedAt: null };
-      
+      const expectedResult = {
+        id: 1,
+        ...mockCreatePlaybackDto,
+        startedAt: new Date(),
+        endedAt: null,
+        stoppedAt: null,
+      };
+
       (service.createPlayback as jest.Mock).mockResolvedValue(expectedResult);
 
       const result = await controller.create(mockCreatePlaybackDto);
-      
-      expect(service.createPlayback).toHaveBeenCalledWith(mockCreatePlaybackDto);
+
+      expect(service.createPlayback).toHaveBeenCalledWith(
+        mockCreatePlaybackDto,
+      );
       expect(result).toEqual(expectedResult);
     });
   });
@@ -74,15 +84,22 @@ describe('RecentlyWatchedController', () => {
       const result = await controller.finish(playbackId, mockFinishPlaybackDto);
 
       // Verifica se o serviço foi chamado com o ID convertido para número
-      expect(service.finishPlayback).toHaveBeenCalledWith(+playbackId, mockFinishPlaybackDto);
+      expect(service.finishPlayback).toHaveBeenCalledWith(
+        +playbackId,
+        mockFinishPlaybackDto,
+      );
       expect(result).toEqual(expectedResult);
     });
 
     it('should throw NotFoundException if service throws it', async () => {
       const nonExistentId = '999';
-      (service.finishPlayback as jest.Mock).mockRejectedValue(new NotFoundException());
+      (service.finishPlayback as jest.Mock).mockRejectedValue(
+        new NotFoundException(),
+      );
 
-      await expect(controller.finish(nonExistentId, mockFinishPlaybackDto)).rejects.toThrow(NotFoundException);
+      await expect(
+        controller.finish(nonExistentId, mockFinishPlaybackDto),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -90,9 +107,18 @@ describe('RecentlyWatchedController', () => {
   describe('getList', () => {
     it('should call service.getRecentlyWatched with the correct profileId and return the result', async () => {
       const profileId = '1';
-      const expectedResult = [{ id: 1, profileId: +profileId, videoId: 101, video: { title: 'Interestelar' } }];
-      
-      (service.getRecentlyWatched as jest.Mock).mockResolvedValue(expectedResult);
+      const expectedResult = [
+        {
+          id: 1,
+          profileId: +profileId,
+          videoId: 101,
+          video: { title: 'Interestelar' },
+        },
+      ];
+
+      (service.getRecentlyWatched as jest.Mock).mockResolvedValue(
+        expectedResult,
+      );
 
       const result = await controller.getList(profileId);
 

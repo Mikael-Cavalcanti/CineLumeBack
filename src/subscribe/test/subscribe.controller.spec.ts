@@ -91,7 +91,10 @@ describe('SubscribeController', () => {
       const result = await controller.remove(profileId, channelId);
 
       // Then
-      expect(service.removeSubscribe).toHaveBeenCalledWith(+profileId, +channelId);
+      expect(service.removeSubscribe).toHaveBeenCalledWith(
+        +profileId,
+        +channelId,
+      );
       expect(result).toEqual(removedSubscribe);
     });
 

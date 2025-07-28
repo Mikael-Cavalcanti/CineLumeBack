@@ -26,10 +26,10 @@ describe('GenreController', () => {
         },
       ],
     })
-    // Simula a desativação do guard para testes unitários
-    .overrideGuard(JwtAuthGuard)
-    .useValue({ canActivate: () => true })
-    .compile();
+      // Simula a desativação do guard para testes unitários
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     controller = module.get<GenreController>(GenreController);
     service = module.get(GenreService);
@@ -87,7 +87,10 @@ describe('GenreController', () => {
       const result = await controller.assignGenre(dto);
 
       expect(result).toEqual(expectedResult);
-      expect(service.addGenreToVideo).toHaveBeenCalledWith(dto.videoId, dto.genreId);
+      expect(service.addGenreToVideo).toHaveBeenCalledWith(
+        dto.videoId,
+        dto.genreId,
+      );
     });
   });
 
@@ -98,7 +101,10 @@ describe('GenreController', () => {
 
       await controller.removeGenre(dto);
 
-      expect(service.removeGenreFromVideo).toHaveBeenCalledWith(dto.videoId, dto.genreId);
+      expect(service.removeGenreFromVideo).toHaveBeenCalledWith(
+        dto.videoId,
+        dto.genreId,
+      );
     });
   });
 });

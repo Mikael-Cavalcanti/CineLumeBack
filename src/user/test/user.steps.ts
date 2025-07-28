@@ -71,10 +71,16 @@ defineFeature(feature, (test) => {
   //Cenário 1: Criar um usuário com sucesso
   test('Criar um usuário com sucesso', ({ given, when, then }) => {
     given(
-      /^que não existe um usuário cadastrado com nome "([^"]+)", email "([^"]+)", senha "([^"]+)" e data de nascimento "([^"]+)"$/,
-      (name: string, email: string, password: string, birthDate: string) => {
+      /^que não existe um usuário cadastrado com nome "([^"]+)", email "([^"]+)", senha "([^"]+)" e data de nascimento "([^"]+)" e id "([^"]+)"$/,
+      (
+        name: string,
+        email: string,
+        password: string,
+        birthDate: string,
+        id: number,
+      ) => {
         (prisma.user.create as jest.Mock).mockResolvedValue({
-          id: 1,
+          id: Number(id),
           name,
           email,
           password,
@@ -101,16 +107,23 @@ defineFeature(feature, (test) => {
     );
 
     then(
-      /^o usuário é salvo no sistema com nome "([^"]+)", email "([^"]+)", senha "([^"]+)" e data de nascimento "([^"]+)"$/,
-      (name: string, email: string, password: string, birthDate: string) => {
+      /^o usuário é salvo no sistema com nome "([^"]+)", email "([^"]+)", senha "([^"]+)" e data de nascimento "([^"]+)" e id "([^"]+)"$/,
+      (
+        name: string,
+        email: string,
+        password: string,
+        birthDate: string,
+        id: number,
+      ) => {
         expect(resultant).toEqual({
-          id: 1,
+          id: Number(id),
           name,
           email,
           password,
           birthDate: new Date(birthDate),
         });
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(prisma.user.create).toHaveBeenCalledWith({
           data: {
             name,
@@ -157,6 +170,7 @@ defineFeature(feature, (test) => {
       (spected: string, email: string) => {
         expect(resultant).toBeNull();
         expect(spected).toBe('null');
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(prisma.user.findUnique).toHaveBeenCalledWith({
           where: { email },
         });
@@ -222,6 +236,7 @@ defineFeature(feature, (test) => {
           birthDate: new Date(birthDate),
         });
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(prisma.user.update).toHaveBeenCalledWith({
           where: { id: 1 },
           data: {
@@ -302,7 +317,7 @@ defineFeature(feature, (test) => {
     then(
       /^a resposta deve conter o usuário com id "([^"]*)"$/,
       (id: number) => {
-        expect(response.body.id).toBe(Number(id));
+        expect(response.body).toHaveProperty('id', Number(id));
       },
     );
   });
