@@ -85,6 +85,7 @@ defineFeature(feature, (test) => {
     then(/^o vídeo deve ser salvo no sistema com os dados informados$/, () => {
       expect(result).toEqual(videoRef);
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(prisma.video.create).toHaveBeenCalledWith({
         data: {
           title: videoRef!.title,
@@ -140,6 +141,7 @@ defineFeature(feature, (test) => {
           type: expectedType,
         });
 
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(prisma.video.update).toHaveBeenCalledWith({
           where: { id: videoRef!.id },
           data: {
