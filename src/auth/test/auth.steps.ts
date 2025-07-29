@@ -8,11 +8,9 @@ import { CreateProfileDto } from '../../profile/dto/create-profile.dto';
 
 const feature = loadFeature('src/auth/test/auth.feature');
 
-// Serviços
 let profileService: ProfileService;
 let userService: UsersService;
 
-// Resultados intermediários
 let resultProfile: Profile;
 let resultUser: User;
 let resultToken: ResetToken;
@@ -43,12 +41,9 @@ defineFeature(feature, (test) => {
   });
 
   test('Cadastro de usuário com sucesso', ({ given, when, then }) => {
-    given(
-      /^que não existe um usuário cadastrado com email "([^"]+)"$/,
-      (email: string) => {
-        (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      },
-    );
+    given(/^que não existe um usuário cadastrado com email "([^"]+)"$/, () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+    });
 
     when(
       /^um novo usuário é criado com nome "([^"]+)", email "([^"]+)", senha "([^"]+)" e data de nascimento "([^"]+)"$/,
