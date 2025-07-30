@@ -30,6 +30,23 @@ export class AuthService {
       );
       if (existingUser) throw new UnauthorizedException('Usuário já existe!');
 
+      //verify if is minor
+      const birthDate = new Date(dto.birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      const dayDiff = today.getDate() - birthDate.getDate();
+
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+      }
+
+      if (age < 18) {
+        throw new UnauthorizedException(
+          'Usuário menor de idade não pode se registrar',
+        );
+      }
+
       const hashedPassword: string = await bcrypt.hash(dto.password, 10);
 
       const user: User = await this.usersService.create({
