@@ -6,19 +6,17 @@ import { ProfileVideoWatchtime, Video } from '@prisma/client';
 export class HistoryService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly COMPLETION_THRESHOLD = 0.9;
+
   async getCompletedHistory(profileID: number): Promise<Video[]> {
     try {
       const records: (ProfileVideoWatchtime & { video: Video })[] =
-        await this.prisma.profileVideoWatchtime.findMany({
-          where: { profileId: profileID },
-          include: { video: true },
-          orderBy: { updatedAt: 'desc' },
-        });
+        await this.fetchHistoryRecords(profileID);
 
       return records
         .filter((record) => {
           const duration = record.video?.duration ?? 0;
-          return record.totalWatch >= duration * 0.9;
+          return record.totalWatch >= duration * this.COMPLETION_THRESHOLD;
         })
         .map((record) => record.video);
     } catch (err) {
@@ -30,21 +28,27 @@ export class HistoryService {
   async getWatchingHistory(profileID: number): Promise<Video[]> {
     try {
       const records: (ProfileVideoWatchtime & { video: Video })[] =
-        await this.prisma.profileVideoWatchtime.findMany({
-          where: { profileId: profileID },
-          include: { video: true },
-          orderBy: { updatedAt: 'desc' },
-        });
+        await this.fetchHistoryRecords(profileID);
 
       return records
         .filter((record) => {
           const duration = record.video?.duration ?? 0;
-          return record.totalWatch < duration * 0.9;
+          return record.totalWatch < duration * this.COMPLETION_THRESHOLD;
         })
         .map((record) => record.video);
     } catch (err) {
       console.error('Error fetching watching history:', err);
       throw new Error('Failed to fetch watching history');
     }
+  }
+
+  private async fetchHistoryRecords(
+    profileID: number,
+  ): Promise<(ProfileVideoWatchtime & { video: Video })[]> {
+    return this.prisma.profileVideoWatchtime.findMany({
+      where: { profileId: profileID },
+      include: { video: true },
+      orderBy: { totalWatch: 'desc' },
+    });
   }
 }
