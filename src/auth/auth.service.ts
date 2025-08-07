@@ -79,7 +79,9 @@ export class AuthService {
     }
   }
 
-  async login(dto: LoginDto): Promise<{ accessToken: string }> {
+  async login(
+    dto: LoginDto,
+  ): Promise<{ accessToken: string; verified: boolean }> {
     try {
       const user: User | null = await this.usersService.findByEmail(dto.email);
       if (!user) throw new UnauthorizedException('Email não encontrado');
@@ -119,7 +121,7 @@ export class AuthService {
         });
       }
 
-      return { accessToken: token.token };
+      return { accessToken: token.token, verified: user.isActive };
     } catch (err) {
       console.error('Error during login:', err);
       throw new UnauthorizedException('Erro ao fazer login');
