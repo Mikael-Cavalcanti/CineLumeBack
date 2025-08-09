@@ -1,21 +1,9 @@
-// auth.controller.ts
-
-import {
-  Controller,
-  Post,
-  Body,
-  Res,
-  Get,
-  Req,
-  UseGuards,
-  HttpCode,
-} from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpCode } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response, Request } from 'express';
-import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Auth')
 @Controller('auth')
