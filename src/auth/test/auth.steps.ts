@@ -23,7 +23,7 @@ let userService: UsersService;
 let profileService: ProfileService;
 
 let result: { accessToken: string };
-let resultProfile: { userId: number };
+let resultProfile: { id: number; name: string; userId: number };
 let resultUser: User | null;
 
 const prisma = {

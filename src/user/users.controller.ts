@@ -3,17 +3,23 @@ import {
   Get,
   Body,
   Patch,
-  Param,
   Delete,
   UseGuards,
   HttpException,
   HttpStatus,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { User } from '@prisma/client';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+  };
+}
 
 @ApiTags('User')
 @Controller('user')
@@ -22,9 +28,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    const user: User | null = await this.usersService.findOne(+id);
+  @Get()
+  async findOne(@Request() req: AuthenticatedRequest) {
+    const userId = req.user.userId;
+
+    const user: User | null = await this.usersService.findOne(userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -33,9 +41,14 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch('update/:id')
-  async update(@Param('id') id: number, @Body() dto: UpdateUserDto) {
-    const user: User | null = await this.usersService.update(+id, dto);
+  @Patch('update')
+  async update(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: UpdateUserDto,
+  ) {
+    const userId = req.user.userId;
+
+    const user: User | null = await this.usersService.update(userId, dto);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -44,9 +57,11 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Delete(':id')
-  async remove(@Param('id') id: number) {
-    const user: User | null = await this.usersService.remove(+id);
+  @Delete()
+  async remove(@Request() req: AuthenticatedRequest) {
+    const userId = req.user.userId;
+
+    const user: User | null = await this.usersService.remove(userId);
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }

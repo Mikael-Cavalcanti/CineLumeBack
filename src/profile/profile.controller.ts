@@ -9,12 +9,19 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Request,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    userId: number;
+  };
+}
 
 @ApiTags('Profiles')
 @Controller('profiles')
@@ -24,24 +31,36 @@ export class ProfileController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get()
-  async getAllProfiles() {
+  async getAllProfiles(@Request() req: AuthenticatedRequest) {
     try {
-      const profiles = await this.profileService.getAllProfiles();
-      return { success: true, data: profiles };
+      const userId = req.user.userId;
+      return await this.profileService.getAllProfiles(userId);
     } catch (error) {
-      return { success: false, message: error.message };
+      console.log(error.message);
+      throw new HttpException(
+        'Error fetching profiles',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post()
-  async createProfile(@Body() body: CreateProfileDto) {
+  async createProfile(
+    @Request() req: AuthenticatedRequest,
+    @Body() body: CreateProfileDto,
+  ) {
     try {
-      const profile = await this.profileService.createProfile(body);
-      return { success: true, data: profile };
+      const userId = req.user.userId;
+      const profileData = { ...body, userId };
+      return await this.profileService.createProfile(profileData);
     } catch (error) {
-      return { success: false, message: error.message };
+      console.log(error.message);
+      throw new HttpException(
+        'Error creating profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -53,7 +72,7 @@ export class ProfileController {
     if (!profile) {
       throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
     }
-    return profile;
+    return;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -64,6 +83,6 @@ export class ProfileController {
     if (!profile) {
       throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
     }
-    return profile;
+    return;
   }
 }
