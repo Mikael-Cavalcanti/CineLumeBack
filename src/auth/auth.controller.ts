@@ -15,13 +15,13 @@ export class AuthController {
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken } = await this.authService.register(dto);
+    const { accessToken, expiresAt } = await this.authService.register(dto);
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 15 * 24 * 60 * 60 * 1000, // 15 dias
+      expires: expiresAt,
       path: '/',
     });
 
@@ -34,13 +34,14 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, verified } = await this.authService.login(dto);
+    const { accessToken, verified, expiresAt } =
+      await this.authService.login(dto);
 
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 15 * 24 * 60 * 60 * 1000,
+      expires: expiresAt,
       path: '/',
     });
 

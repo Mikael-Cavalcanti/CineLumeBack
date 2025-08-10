@@ -23,7 +23,9 @@ export class AuthService {
     private readonly profileService: ProfileService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<{ accessToken: string }> {
+  async register(
+    dto: RegisterDto,
+  ): Promise<{ accessToken: string; expiresAt: Date }> {
     try {
       const existingUser: User | null = await this.usersService.findByEmail(
         dto.email,
@@ -72,7 +74,10 @@ export class AuthService {
         data: { used: true },
       });
 
-      return { accessToken: userToken.token };
+      return {
+        accessToken: userToken.token,
+        expiresAt: userToken.expiresAt,
+      };
     } catch (error) {
       console.error('Error during registration:', error);
       throw new UnauthorizedException('Erro ao registrar usuário');
@@ -81,7 +86,7 @@ export class AuthService {
 
   async login(
     dto: LoginDto,
-  ): Promise<{ accessToken: string; verified: boolean }> {
+  ): Promise<{ accessToken: string; verified: boolean; expiresAt: Date }> {
     try {
       const user: User | null = await this.usersService.findByEmail(dto.email);
       if (!user) throw new UnauthorizedException('Email não encontrado');
@@ -121,7 +126,11 @@ export class AuthService {
         });
       }
 
-      return { accessToken: token.token, verified: user.isActive };
+      return {
+        accessToken: token.token,
+        verified: user.isActive,
+        expiresAt: token.expiresAt,
+      };
     } catch (err) {
       console.error('Error during login:', err);
       throw new UnauthorizedException('Erro ao fazer login');
