@@ -8,6 +8,8 @@ import {
   HttpException,
   HttpStatus,
   Request,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -42,6 +44,12 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch('update')
+  @UsePipes(
+    new ValidationPipe({
+      transform: true,
+      skipMissingProperties: true,
+    }),
+  )
   async update(
     @Request() req: AuthenticatedRequest,
     @Body() dto: UpdateUserDto,

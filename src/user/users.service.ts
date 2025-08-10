@@ -48,13 +48,18 @@ export class UsersService {
 
   async update(id: number, dto: UpdateUserDto): Promise<User | null> {
     try {
+      const existing = await this.prisma.user.findUnique({ where: { id } });
+      if (!existing) return null;
+
       return await this.prisma.user.update({
         where: { id },
         data: {
-          name: dto.name,
-          email: dto.email,
-          password: dto.password,
-          birthDate: new Date(dto.birthDate),
+          name: dto.name ?? existing.name,
+          email: dto.email ?? existing.email,
+          password: dto.password ?? existing.password,
+          birthDate: dto.birthDate
+            ? new Date(dto.birthDate)
+            : existing.birthDate,
         },
       });
     } catch (e) {
