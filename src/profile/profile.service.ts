@@ -2,16 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { Profile } from '@prisma/client';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createProfile(
-    dto: CreateProfileDto,
-  ): Promise<{ id: number; name: string; userId: number }> {
+  async createProfile(dto: CreateProfileDto): Promise<Profile> {
     try {
-      const profile = await this.prisma.profile.create({
+      return await this.prisma.profile.create({
         data: {
           userId: dto.userId,
           name: dto.name,
@@ -19,7 +18,6 @@ export class ProfileService {
           isKidsProfile: dto.isKidProfile,
         },
       });
-      return { id: profile.id, name: profile.name, userId: profile.userId };
     } catch (error) {
       if (error.code === 'P2002') {
         console.error(`Profile name already exists:`, error);
@@ -29,30 +27,23 @@ export class ProfileService {
     }
   }
 
-  async getAllProfiles(
-    userId: number,
-  ): Promise<{ id: number; name: string; userId: number }[]> {
+  async getAllProfiles(userId: number): Promise<Profile[] | null> {
     try {
-      const profiles = await this.prisma.profile.findMany({
+      return await this.prisma.profile.findMany({
         where: { userId },
       });
-      return profiles.map((profile) => ({
-        id: profile.id,
-        name: profile.name,
-        userId: profile.userId,
-      }));
     } catch (error) {
       console.error('Error fetching profiles:', error);
-      throw new Error('Error fetching profiles');
+      return null;
     }
   }
 
   async updateProfile(
     id: number,
     dto: UpdateProfileDto,
-  ): Promise<{ id: number; name: string; userId: number } | null> {
+  ): Promise<Profile | null> {
     try {
-      const profile = await this.prisma.profile.update({
+      return await this.prisma.profile.update({
         where: { id },
         data: {
           name: dto.name,
@@ -60,8 +51,6 @@ export class ProfileService {
           isKidsProfile: dto.isKidProfile,
         },
       });
-
-      return { id: profile.id, name: profile.name, userId: profile.userId };
     } catch (e) {
       console.error('Error updating profile:', e);
       return null;
@@ -69,14 +58,43 @@ export class ProfileService {
   }
 
   async removeProfile(
+    userId: number,
     id: number,
-  ): Promise<{ id: number; name: string; userId: number } | null> {
+  ): Promise<{
+    profile: Profile;
+    isLastProfile: boolean;
+  } | null> {
     try {
-      const profile = await this.prisma.profile.delete({
+      const profileAmount = await this.prisma.profile.count({
+        where: { userId },
+      });
+
+      if (profileAmount <= 1) {
+        console.error('Cannot delete the last profile for a user');
+        const lastProfile: Profile | null =
+          await this.prisma.profile.findUnique({
+            where: { id },
+          });
+
+        if (!lastProfile) {
+          console.error('Profile not found');
+          return null;
+        }
+
+        return {
+          profile: lastProfile,
+          isLastProfile: true,
+        };
+      }
+
+      const profile: Profile = await this.prisma.profile.delete({
         where: { id },
       });
 
-      return { id: profile.id, name: profile.name, userId: profile.userId };
+      return {
+        profile,
+        isLastProfile: false,
+      };
     } catch (err) {
       console.error('Error removing profile:', err);
       return null;

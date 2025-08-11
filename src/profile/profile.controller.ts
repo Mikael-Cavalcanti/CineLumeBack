@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Param,
   Post,
   Body,
   Patch,
@@ -10,12 +9,15 @@ import {
   HttpException,
   HttpStatus,
   Request,
+  Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { Profile } from '@prisma/client';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -23,18 +25,26 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
-@ApiTags('Profiles')
-@Controller('profiles')
+@ApiTags('Profile')
+@Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get()
-  async getAllProfiles(@Request() req: AuthenticatedRequest) {
+  @Get('all')
+  async getAllProfiles(
+    @Request() req: AuthenticatedRequest,
+  ): Promise<Profile[]> {
     try {
-      const userId = req.user.userId;
-      return await this.profileService.getAllProfiles(userId);
+      const userId: number = req.user.userId;
+      const profiles = await this.profileService.getAllProfiles(+userId);
+
+      if (!profiles || profiles.length === 0) {
+        throw new HttpException('No profiles found', HttpStatus.NOT_FOUND);
+      }
+
+      return profiles;
     } catch (error) {
       console.log(error.message);
       throw new HttpException(
@@ -46,14 +56,15 @@ export class ProfileController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Post()
+  @Post('new')
   async createProfile(
     @Request() req: AuthenticatedRequest,
     @Body() body: CreateProfileDto,
-  ) {
+  ): Promise<Profile> {
     try {
       const userId = req.user.userId;
       const profileData = { ...body, userId };
+
       return await this.profileService.createProfile(profileData);
     } catch (error) {
       console.log(error.message);
@@ -67,22 +78,37 @@ export class ProfileController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Patch('Update/:id')
-  async update(@Param('id') id: number, @Body() dto: UpdateProfileDto) {
-    const profile = await this.profileService.updateProfile(+id, dto);
+  async update(
+    @Request() req: AuthenticatedRequest,
+    @Body() dto: UpdateProfileDto,
+  ): Promise<Profile> {
+    const userId: number = req.user.userId;
+    const profile = await this.profileService.updateProfile(+userId, dto);
+
     if (!profile) {
       throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
     }
-    return;
+    return profile;
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    const profile = await this.profileService.removeProfile(+id);
+  async remove(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: number,
+  ): Promise<Profile> {
+    const userId: number = req.user.userId;
+    const profile = await this.profileService.removeProfile(+userId, +id);
+
     if (!profile) {
       throw new HttpException('Profile not found', HttpStatus.NOT_FOUND);
     }
-    return;
+
+    if (profile.isLastProfile) {
+      throw new BadRequestException('Cannot delete the last profile');
+    }
+
+    return profile.profile;
   }
 }

@@ -30,7 +30,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Get()
+  @Get('me')
   async findOne(@Request() req: AuthenticatedRequest) {
     const userId = req.user.userId;
 
@@ -43,7 +43,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch('update')
+  @Patch('update/me')
   @UsePipes(
     new ValidationPipe({
       transform: true,
@@ -65,7 +65,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Delete()
+  @Delete('delete/me')
   async remove(@Request() req: AuthenticatedRequest) {
     const userId = req.user.userId;
 
