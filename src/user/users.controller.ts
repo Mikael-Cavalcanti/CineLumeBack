@@ -31,7 +31,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get('me')
-  async findOne(@Request() req: AuthenticatedRequest) {
+  async findOne(@Request() req: AuthenticatedRequest): Promise<User> {
     const userId = req.user.userId;
 
     const user: User | null = await this.usersService.findOne(userId);
@@ -53,7 +53,7 @@ export class UsersController {
   async update(
     @Request() req: AuthenticatedRequest,
     @Body() dto: UpdateUserDto,
-  ) {
+  ): Promise<User> {
     const userId = req.user.userId;
 
     const user: User | null = await this.usersService.update(userId, dto);
@@ -66,7 +66,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete('delete/me')
-  async remove(@Request() req: AuthenticatedRequest) {
+  async remove(@Request() req: AuthenticatedRequest): Promise<User> {
     const userId = req.user.userId;
 
     const user: User | null = await this.usersService.remove(userId);
