@@ -27,6 +27,20 @@ export class ProfileService {
     }
   }
 
+  async getProfile(userId: number, id: number): Promise<Profile | null> {
+    try {
+      return await this.prisma.profile.findUnique({
+        where: {
+          id,
+          userId,
+        },
+      });
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+  }
+
   async getAllProfiles(userId: number): Promise<Profile[] | null> {
     try {
       return await this.prisma.profile.findMany({

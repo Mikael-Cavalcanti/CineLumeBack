@@ -56,6 +56,31 @@ export class ProfileController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
+  @Get(':id')
+  async getProfile(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: number,
+  ): Promise<Profile> {
+    try {
+      const userId: number = req.user.userId;
+      const profile = await this.profileService.getProfile(+userId, +id);
+
+      if (!profile) {
+        throw new HttpException('No profile found', HttpStatus.NOT_FOUND);
+      }
+
+      return profile;
+    } catch (error) {
+      console.log(error.message);
+      throw new HttpException(
+        'Error fetching profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('new')
   async createProfile(
     @Request() req: AuthenticatedRequest,
@@ -77,7 +102,7 @@ export class ProfileController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch('Update/:id')
+  @Patch('update/:id')
   async update(
     @Request() req: AuthenticatedRequest,
     @Body() dto: UpdateProfileDto,
