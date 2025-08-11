@@ -118,7 +118,7 @@ export class ProfileController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Delete(':id')
+  @Delete('delete/:id')
   async remove(
     @Request() req: AuthenticatedRequest,
     @Param('id') id: number,
