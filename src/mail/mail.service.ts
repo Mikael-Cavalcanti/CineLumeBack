@@ -52,19 +52,27 @@ export class MailService {
         });
 
       if (code) {
-        throw new BadRequestException(
-          `Código ${code.code} de verificação já enviado recentemente, expira em ${code.expiresAt.toLocaleString(
-            'pt-BR',
-            {
-              day: '2-digit',
-              month: '2-digit',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-            },
-          )}.`,
-        );
+        await this.transporter.sendMail({
+          from: `"CineLume" <${process.env.EMAIL_USER}>`,
+          to: user.email,
+          subject: 'Reenvio de Confirmação de cadastro',
+          html: `${template(code, user)}`,
+        });
+        return;
+
+        // throw new BadRequestException(
+        //   `Código ${code.code} de verificação já enviado recentemente, expira em ${code.expiresAt.toLocaleString(
+        //     'pt-BR',
+        //     {
+        //       day: '2-digit',
+        //       month: '2-digit',
+        //       year: 'numeric',
+        //       hour: '2-digit',
+        //       minute: '2-digit',
+        //       second: '2-digit',
+        //     },
+        //   )}.`,
+        // );
       }
 
       code = await this.generateVerificationCode(user.id);
