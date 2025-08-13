@@ -6,6 +6,8 @@ import * as process from 'node:process';
 import { ActivationCode, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { template } from './template/template';
+import { genericTemplate } from './template/generic-template';
+import { GenericMailDto } from './dto/generic.mail.dto';
 
 @Injectable()
 export class MailService {
@@ -100,6 +102,23 @@ export class MailService {
       await this.sendEmailCode(user);
     } catch (error) {
       this.logger.error('Erro ao reenviar e-mail', error);
+      throw new BadRequestException(error);
+    }
+  }
+
+  async sendMessageToEmail(dto: GenericMailDto): Promise<string> {
+    try {
+      const mailOptions = {
+        from: `"CineLume" <${process.env.EMAIL_USER}>`,
+        to: dto.email,
+        subject: dto.subject,
+        html: genericTemplate(dto.subject, dto.message),
+      };
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Mensagem enviada para ${dto.email} com sucesso.`);
+      return `Mensagem enviada para ${dto.email} com sucesso.`;
+    } catch (error) {
+      this.logger.error('Erro ao enviar mensagem para o e-mail', error);
       throw new BadRequestException(error);
     }
   }
