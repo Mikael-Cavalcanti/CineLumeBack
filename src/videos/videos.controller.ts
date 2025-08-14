@@ -20,7 +20,18 @@ import { Request, Response } from 'express';
 @ApiTags('Videos')
 @Controller('videos')
 export class VideosController {
-  constructor(private readonly videoService: VideosService) { }
+  constructor(private readonly videoService: VideosService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('all')
+  async getAllVideos(): Promise<Video[]> {
+    const videos: Video[] = await this.videoService.getAllVideos();
+    if (!videos || videos.length === 0) {
+      throw new Error('No videos found');
+    }
+    return videos;
+  }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -95,7 +106,11 @@ export class VideosController {
   }
 
   @Get(':id/stream')
-  async streamVideo(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+  async streamVideo(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     const range = req.headers.range;
     const videoData = await this.videoService.getVideoStream(id, range);
 
@@ -121,12 +136,26 @@ export class VideosController {
   }
 
   @Post('progress')
-  async salvarProgress(@Body() body: { profileId: number; videoId: number; tempoAssistido: number }) {
-    return this.videoService.saveProgress(body.profileId, body.videoId, body.tempoAssistido);
+  async salvarProgress(
+    @Body()
+    body: {
+      profileId: number;
+      videoId: number;
+      tempoAssistido: number;
+    },
+  ) {
+    return this.videoService.saveProgress(
+      body.profileId,
+      body.videoId,
+      body.tempoAssistido,
+    );
   }
 
   @Get('progress/:profileId/:videoId')
-  async getProgress(@Param('profileId') profileId: number, @Param('videoId') videoId: number) {
+  async getProgress(
+    @Param('profileId') profileId: number,
+    @Param('videoId') videoId: number,
+  ) {
     return this.videoService.getProgresso(+profileId, +videoId);
   }
 }

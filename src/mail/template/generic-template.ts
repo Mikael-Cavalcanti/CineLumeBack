@@ -1,4 +1,8 @@
-export const genericTemplate = (subject: string, message: string, user?: { name?: string }) => `
+export const genericTemplate = (
+  subject: string,
+  message: string,
+  user?: { name?: string },
+) => `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>

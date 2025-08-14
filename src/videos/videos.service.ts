@@ -7,7 +7,7 @@ import * as path from 'path';
 
 @Injectable()
 export class VideosService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: BaseVideoDto): Promise<Video> {
     try {
@@ -26,6 +26,17 @@ export class VideosService {
     } catch (err) {
       console.error('Error creating video:', err);
       throw new Error('Error creating video');
+    }
+  }
+
+  async getAllVideos(): Promise<Video[]> {
+    try {
+      return await this.prisma.video.findMany({
+        orderBy: { title: 'asc' },
+      });
+    } catch (err) {
+      console.error('Error fetching all videos:', err);
+      throw new Error('Error fetching all videos');
     }
   }
 
@@ -97,8 +108,17 @@ export class VideosService {
     }
   }
 
-  async getVideoStream(videoId: string, rangeHeader?: string): Promise<any | null> {
-    const caminhoFilme = path.join(__dirname, '..', '..', 'videos', `${videoId}.mp4`);
+  async getVideoStream(
+    videoId: string,
+    rangeHeader?: string,
+  ): Promise<any | null> {
+    const caminhoFilme = path.join(
+      __dirname,
+      '..',
+      '..',
+      'videos',
+      `${videoId}.mp4`,
+    );
 
     if (!fs.existsSync(caminhoFilme)) {
       throw new NotFoundException('Filme não encontrado');
@@ -108,7 +128,13 @@ export class VideosService {
     const fileSize = stat.size;
 
     if (!rangeHeader) {
-      return { file: fs.createReadStream(caminhoFilme), fileSize, start: 0, end: fileSize - 1, partial: false };
+      return {
+        file: fs.createReadStream(caminhoFilme),
+        fileSize,
+        start: 0,
+        end: fileSize - 1,
+        partial: false,
+      };
     }
 
     const partes = rangeHeader.replace(/bytes=/, '').split('-');
@@ -126,7 +152,11 @@ export class VideosService {
     };
   }
 
-  async saveProgress(profileId: number, videoId: number, tempoAssistido: number): Promise<any | null> {
+  async saveProgress(
+    profileId: number,
+    videoId: number,
+    tempoAssistido: number,
+  ): Promise<any | null> {
     return this.prisma.profileVideoWatchtime.upsert({
       where: { profileId_videoId: { profileId, videoId } },
       update: { totalWatch: tempoAssistido },

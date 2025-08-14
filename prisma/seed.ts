@@ -7,6 +7,8 @@ async function main() {
 
   // Limpar dados anteriores
   console.log('🧹 Limpando dados anteriores...')
+  await prisma.profileVideoWatchtime.deleteMany({})
+  console.log('✅ ProfileVideoWatchtime limpo')
   await prisma.videoGenre.deleteMany({})
   console.log('✅ VideoGenre limpo')
   await prisma.video.deleteMany({})
@@ -192,6 +194,48 @@ async function main() {
     }
   }
 
+  // Seed para ProfileVideoWatchtime - buscar perfis existentes e linkar a vídeos aleatórios
+  console.log('⏱️ Criando dados de tempo assistido...')
+  
+  const existingProfiles = await prisma.profile.findMany()
+  console.log(`📊 Encontrados ${existingProfiles.length} perfis existentes`)
+  
+  if (existingProfiles.length > 0) {
+    const profileWatchtimeData: Array<any> = []
+    
+    for (const profile of existingProfiles) {
+      // Selecionar 2 vídeos aleatórios para cada perfil
+      const shuffledVideos = [...createdVideos].sort(() => 0.5 - Math.random())
+      const selectedVideos = shuffledVideos.slice(0, 2)
+      
+      for (const video of selectedVideos) {
+        // Gerar tempo assistido aleatório (entre 10% e 90% do vídeo)
+        const minWatch = Math.floor(video.duration * 0.1)
+        const maxWatch = Math.floor(video.duration * 0.9)
+        const watchTime = Math.floor(Math.random() * (maxWatch - minWatch + 1)) + minWatch
+        
+        const watchData = {
+          profileId: profile.id,
+          videoId: video.id,
+          totalWatch: watchTime
+        }
+        
+        profileWatchtimeData.push(watchData)
+        
+        await prisma.profileVideoWatchtime.create({
+          data: watchData
+        })
+        
+        const watchPercentage = Math.round((watchTime / video.duration) * 100)
+        console.log(`✅ ${profile.name} assistiu ${watchPercentage}% de "${video.title}"`)
+      }
+    }
+    
+    console.log(`📊 ${profileWatchtimeData.length} registros de tempo assistido criados`)
+  } else {
+    console.log('⚠️ Nenhum perfil encontrado - pulando criação de ProfileVideoWatchtime')
+  }
+
   console.log('🎉 Seed concluído com sucesso!')
   console.log(`📊 Resumo:`)
   console.log(`   - ${createdGenres.length} gêneros criados`)
@@ -199,6 +243,10 @@ async function main() {
   
   const totalRelations = createdVideos.reduce((acc, video) => acc + video.genreNames.length, 0)
   console.log(`   - ${totalRelations} relacionamentos Video-Genre criados`)
+  
+  if (existingProfiles.length > 0) {
+    console.log(`   - ${existingProfiles.length * 2} registros de tempo assistido criados`)
+  }
 }
 
 main()
