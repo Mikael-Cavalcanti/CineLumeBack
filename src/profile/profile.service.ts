@@ -45,6 +45,7 @@ export class ProfileService {
     try {
       return await this.prisma.profile.findMany({
         where: { userId },
+        orderBy: { createdAt: 'asc' },
       });
     } catch (error) {
       console.error('Error fetching profiles:', error);
@@ -53,12 +54,15 @@ export class ProfileService {
   }
 
   async updateProfile(
-    id: number,
+    userId: number,
     dto: UpdateProfileDto,
   ): Promise<Profile | null> {
     try {
       return await this.prisma.profile.update({
-        where: { id },
+        where: {
+          id: dto.id,
+          userId,
+        },
         data: {
           name: dto.name,
           avatarUrl: dto.avatarUrl,

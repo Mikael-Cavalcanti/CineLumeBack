@@ -102,7 +102,7 @@ export class ProfileController {
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @Patch('update/:id')
+  @Patch('update')
   async update(
     @Request() req: AuthenticatedRequest,
     @Body() dto: UpdateProfileDto,
