@@ -204,15 +204,26 @@ async function main() {
     const profileWatchtimeData: Array<any> = []
     
     for (const profile of existingProfiles) {
-      // Selecionar 2 vídeos aleatórios para cada perfil
+      // Selecionar 3 vídeos aleatórios para cada perfil (2 parciais + 1 completo)
       const shuffledVideos = [...createdVideos].sort(() => 0.5 - Math.random())
-      const selectedVideos = shuffledVideos.slice(0, 2)
+      const selectedVideos = shuffledVideos.slice(0, 3)
       
-      for (const video of selectedVideos) {
-        // Gerar tempo assistido aleatório (entre 10% e 90% do vídeo)
-        const minWatch = Math.floor(video.duration * 0.1)
-        const maxWatch = Math.floor(video.duration * 0.9)
-        const watchTime = Math.floor(Math.random() * (maxWatch - minWatch + 1)) + minWatch
+      for (let i = 0; i < selectedVideos.length; i++) {
+        const video = selectedVideos[i]
+        let watchTime: number
+        let watchPercentage: number
+        
+        if (i === 2) {
+          // Terceiro vídeo: assistido completamente (100%)
+          watchTime = video.duration
+          watchPercentage = 100
+        } else {
+          // Primeiro e segundo vídeos: tempo assistido aleatório (entre 10% e 90%)
+          const minWatch = Math.floor(video.duration * 0.1)
+          const maxWatch = Math.floor(video.duration * 0.9)
+          watchTime = Math.floor(Math.random() * (maxWatch - minWatch + 1)) + minWatch
+          watchPercentage = Math.round((watchTime / video.duration) * 100)
+        }
         
         const watchData = {
           profileId: profile.id,
@@ -226,8 +237,8 @@ async function main() {
           data: watchData
         })
         
-        const watchPercentage = Math.round((watchTime / video.duration) * 100)
-        console.log(`✅ ${profile.name} assistiu ${watchPercentage}% de "${video.title}"`)
+        const statusEmoji = watchPercentage === 100 ? '🏁' : '⏸️'
+        console.log(`✅ ${profile.name} assistiu ${watchPercentage}% de "${video.title}" ${statusEmoji}`)
       }
     }
     
@@ -245,7 +256,7 @@ async function main() {
   console.log(`   - ${totalRelations} relacionamentos Video-Genre criados`)
   
   if (existingProfiles.length > 0) {
-    console.log(`   - ${existingProfiles.length * 2} registros de tempo assistido criados`)
+    console.log(`   - ${existingProfiles.length * 3} registros de tempo assistido criados`)
   }
 }
 
