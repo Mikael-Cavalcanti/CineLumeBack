@@ -174,7 +174,7 @@ model ResetToken {
 model Trending {
   id         Int      @id @default(autoincrement())
   video      Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
-  videoId    Int
+  videoId    Int      @unique
   rank       Int
   viewCount  Int      @map("view_count")
   recordedAt DateTime @default(now()) @map("recorded_at")

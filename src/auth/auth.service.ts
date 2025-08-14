@@ -65,7 +65,8 @@ export class AuthService {
         isKidProfile: false,
       });
 
-      await this.mailService.sendEmailCode(user);
+      // Temporariamente desabilitado para desenvolvimento
+      // await this.mailService.sendEmailCode(user);
 
       const userToken: ResetToken = await this.generateToken(user.id);
 
@@ -96,7 +97,8 @@ export class AuthService {
       if (!isValidPassword) throw new UnauthorizedException('Senha inválida');
 
       if (!user.isActive) {
-        await this.mailService.sendEmailCode(user);
+        // Temporariamente desabilitado para desenvolvimento
+        // await this.mailService.sendEmailCode(user);
       }
 
       let token: ResetToken | null = await this.prisma.resetToken.findFirst({

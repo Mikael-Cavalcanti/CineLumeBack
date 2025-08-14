@@ -170,4 +170,119 @@ export class VideosService {
     });
     return registro || { totalWatch: 0 };
   }
+
+  async getTopTrendingMovies() {
+    try {
+      const trendingMovies = await this.prisma.trending.findMany({
+        take: 10,
+        orderBy: { rank: 'asc' },
+        include: {
+          video: {
+            include: {
+              genres: {
+                include: {
+                  genre: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const movies = trendingMovies.map((trending, index) => ({
+        id: trending.video.id,
+        title: trending.video.title,
+        year: trending.video.releaseYear?.toString() || 'N/A',
+        image: trending.video.thumbnailUrl || '/placeholder.svg',
+        rank: trending.rank,
+        views: trending.viewCount,
+        description: trending.video.description,
+        genre: trending.video.genres[0]?.genre.name || 'N/A',
+        duration: this.formatDuration(trending.video.duration)
+      }));
+
+      return {
+        movies,
+        total: movies.length,
+        period: 'week'
+      };
+    } catch (err) {
+      console.error('Error fetching top trending movies:', err);
+      throw new Error('Error fetching top trending movies');
+    }
+  }
+
+  async getTrendingByPeriod(period: string) {
+    try {
+      const now = new Date();
+      let startDate: Date;
+
+      switch (period) {
+        case 'day':
+          startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case 'week':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        default:
+          throw new Error('Invalid period');
+      }
+
+      const trendingMovies = await this.prisma.trending.findMany({
+        where: {
+          recordedAt: {
+            gte: startDate,
+            lte: now
+          }
+        },
+        take: 10,
+        orderBy: { viewCount: 'desc' },
+        include: {
+          video: {
+            include: {
+              genres: {
+                include: {
+                  genre: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const movies = trendingMovies.map((trending, index) => ({
+        id: trending.video.id,
+        title: trending.video.title,
+        year: trending.video.releaseYear?.toString() || 'N/A',
+        image: trending.video.thumbnailUrl || '/placeholder.svg',
+        rank: index + 1,
+        views: trending.viewCount,
+        description: trending.video.description,
+        genre: trending.video.genres[0]?.genre.name || 'N/A',
+        duration: this.formatDuration(trending.video.duration)
+      }));
+
+      return {
+        movies,
+        total: movies.length,
+        period
+      };
+    } catch (err) {
+      console.error('Error fetching trending movies by period:', err);
+      throw new Error('Error fetching trending movies by period');
+    }
+  }
+
+  private formatDuration(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}min`;
+    }
+    return `${minutes}min`;
+  }
 }
