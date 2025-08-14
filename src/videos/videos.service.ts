@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BaseVideoDto } from './dto/base-video.dto';
 import { Video } from '@prisma/client';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class VideosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(dto: BaseVideoDto): Promise<Video> {
     try {
@@ -93,5 +95,49 @@ export class VideosService {
       console.error('Error deleting video', err);
       return null;
     }
+  }
+
+  async getVideoStream(videoId: string, rangeHeader?: string): Promise<any | null> {
+    const caminhoFilme = path.join(__dirname, '..', '..', 'videos', `${videoId}.mp4`);
+
+    if (!fs.existsSync(caminhoFilme)) {
+      throw new NotFoundException('Filme não encontrado');
+    }
+
+    const stat = fs.statSync(caminhoFilme);
+    const fileSize = stat.size;
+
+    if (!rangeHeader) {
+      return { file: fs.createReadStream(caminhoFilme), fileSize, start: 0, end: fileSize - 1, partial: false };
+    }
+
+    const partes = rangeHeader.replace(/bytes=/, '').split('-');
+    const start = parseInt(partes[0], 10);
+    const end = partes[1] ? parseInt(partes[1], 10) : fileSize - 1;
+    const chunkSize = end - start + 1;
+
+    return {
+      file: fs.createReadStream(caminhoFilme, { start, end }),
+      fileSize,
+      start,
+      end,
+      chunkSize,
+      partial: true,
+    };
+  }
+
+  async saveProgress(profileId: number, videoId: number, tempoAssistido: number): Promise<any | null> {
+    return this.prisma.profileVideoWatchtime.upsert({
+      where: { profileId_videoId: { profileId, videoId } },
+      update: { totalWatch: tempoAssistido },
+      create: { profileId, videoId, totalWatch: tempoAssistido },
+    });
+  }
+
+  async getProgresso(profileId: number, videoId: number): Promise<any | null> {
+    const registro = await this.prisma.profileVideoWatchtime.findUnique({
+      where: { profileId_videoId: { profileId, videoId } },
+    });
+    return registro || { totalWatch: 0 };
   }
 }
