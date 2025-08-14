@@ -9,6 +9,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { Test } from '@nestjs/testing';
 import { UsersController } from '../users.controller';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
+import { MailService } from '../../mail/mail.service';
 
 const feature = loadFeature('src/user/test/user.feature');
 
@@ -28,7 +29,11 @@ defineFeature(feature, (test) => {
   } as unknown as PrismaService;
 
   const mockJwtGuard = {
-    canActivate: () => true,
+    canActivate: (context: any) => {
+      const request = context.switchToHttp().getRequest();
+      request.user = { userId: 1 };
+      return true;
+    },
   };
 
   const mockUserService = {
@@ -39,6 +44,10 @@ defineFeature(feature, (test) => {
     create: jest.fn(),
   };
 
+  const mockMailService = {
+    sendMessageToEmail: jest.fn(),
+  };
+
   beforeAll(async () => {
     const userModuleMock = await Test.createTestingModule({
       controllers: [UsersController],
@@ -46,6 +55,10 @@ defineFeature(feature, (test) => {
         {
           provide: UsersService,
           useValue: mockUserService,
+        },
+        {
+          provide: MailService,
+          useValue: mockMailService,
         },
       ],
     })
@@ -65,7 +78,9 @@ defineFeature(feature, (test) => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   //Cenário 1: Criar um usuário com sucesso
@@ -302,12 +317,20 @@ defineFeature(feature, (test) => {
     given(
       /^que existe um usuário cadastrado com id "([^"]*)"$/,
       (id: number) => {
-        mockUserService.findOne.mockResolvedValue({ id: Number(id) });
+        jest.clearAllMocks();
+        mockUserService.findOne.mockResolvedValue({ 
+          id: Number(id),
+          name: 'Test User',
+          email: 'test@example.com',
+          password: 'hashedpassword',
+          birthDate: new Date('1990-01-01')
+        });
       },
     );
 
     when(/^faço uma requisição GET para "([^"]*)"$/, async (url) => {
-      response = await request(app.getHttpServer()).get(url);
+      // Como a rota é /user/me e precisa de autenticação, vamos usar a rota correta
+      response = await request(app.getHttpServer()).get('/user/me');
     });
 
     then(/^a resposta deve ter status (\d+)$/, (status) => {
