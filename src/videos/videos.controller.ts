@@ -6,6 +6,8 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { VideosService } from './videos.service';
@@ -13,11 +15,12 @@ import { BaseVideoDto } from './dto/base-video.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Video } from '@prisma/client';
+import { Request, Response } from 'express';
 
 @ApiTags('Videos')
 @Controller('videos')
 export class VideosController {
-  constructor(private readonly videoService: VideosService) {}
+  constructor(private readonly videoService: VideosService) { }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -89,5 +92,41 @@ export class VideosController {
       throw new Error('Error removing video, video not found');
     }
     return video;
+  }
+
+  @Get(':id/stream')
+  async streamVideo(@Param('id') id: string, @Req() req: Request, @Res() res: Response) {
+    const range = req.headers.range;
+    const videoData = await this.videoService.getVideoStream(id, range);
+
+    if (videoData.partial) {
+      if (videoData.partial) {
+        res.status(206);
+        res.set({
+          'Content-Range': `bytes ${videoData.start}-${videoData.end}/${videoData.fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': videoData.chunkSize,
+          'Content-Type': 'video/mp4',
+        });
+      } else {
+        res.status(200);
+        res.set({
+          'Content-Length': videoData.fileSize,
+          'Content-Type': 'video/mp4',
+        });
+      }
+
+      videoData.file.pipe(res);
+    }
+  }
+
+  @Post('progress')
+  async salvarProgress(@Body() body: { profileId: number; videoId: number; tempoAssistido: number }) {
+    return this.videoService.saveProgress(body.profileId, body.videoId, body.tempoAssistido);
+  }
+
+  @Get('progress/:profileId/:videoId')
+  async getProgress(@Param('profileId') profileId: number, @Param('videoId') videoId: number) {
+    return this.videoService.getProgresso(+profileId, +videoId);
   }
 }
