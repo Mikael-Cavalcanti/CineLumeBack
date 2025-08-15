@@ -18,12 +18,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { Profile } from '@prisma/client';
-
-interface AuthenticatedRequest extends Request {
-  user: {
-    userId: number;
-  };
-}
+import { AuthenticatedRequest } from '../common/type/authenticated-request';
 
 @ApiTags('Profile')
 @Controller('profile')
