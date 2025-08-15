@@ -11,6 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { VideosService } from './videos.service';
+import { TrendingService } from './trending.service';
 import { BaseVideoDto } from './dto/base-video.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -20,7 +21,10 @@ import { Request, Response } from 'express';
 @ApiTags('Videos')
 @Controller('videos')
 export class VideosController {
-  constructor(private readonly videoService: VideosService) {}
+  constructor(
+    private readonly videoService: VideosService,
+    private readonly trendingService: TrendingService
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
@@ -157,5 +161,31 @@ export class VideosController {
     @Param('videoId') videoId: number,
   ) {
     return this.videoService.getProgresso(+profileId, +videoId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('trending/top-10')
+  async getTopTrendingMovies() {
+    return this.trendingService.getTopTrendingMovies();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('trending/:period')
+  async getTrendingByPeriod(@Param('period') period: string) {
+    const validPeriods = ['day', 'week', 'month'];
+    if (!validPeriods.includes(period)) {
+      throw new Error('Invalid period. Must be day, week, or month');
+    }
+    return this.trendingService.getTrendingByPeriod(period);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('trending/increment-view/:videoId')
+  async incrementViewCount(@Param('videoId') videoId: number) {
+    await this.trendingService.incrementViewCount(+videoId);
+    return { message: 'View count incremented successfully' };
   }
 }

@@ -16,6 +16,7 @@ export class UsersService {
           email: dto.email,
           password: dto.password,
           birthDate: new Date(dto.birthDate),
+          isActive: true, // Ativar automaticamente para desenvolvimento
         },
       });
     } catch (err) {
